@@ -25,7 +25,7 @@ namespace ChatSharp.Handlers
         /// </summary>
         public static void HandleListEnd(IrcClient client, IrcMessage message)
         {
-            client.OnListEnd(new Events.ListEndEventArgs());
+            client.OnListEnd(new Events.ListEndEventArgs(message));
         }
     }
 }

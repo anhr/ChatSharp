@@ -7,8 +7,13 @@ namespace ChatSharp.Events
     /// </summary>
     public class ListEndEventArgs : EventArgs
     {
-        internal ListEndEventArgs()
+        /// <summary>
+        /// The IRC server's 321 RPL_LISTEND ":End of /LIST" reply that has occured.
+        /// </summary>
+        public IrcMessage Message { get; set; }
+        internal ListEndEventArgs(IrcMessage message)
         {
+            Message = message;
         }
     }
 }
