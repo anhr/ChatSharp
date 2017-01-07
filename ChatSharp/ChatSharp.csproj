@@ -49,6 +49,9 @@
     <Compile Include="Events\ErrorReplieEventArgs.cs" />
     <Compile Include="Events\IrcNoticeEventArgs.cs" />
     <Compile Include="Events\ErronousNickEventArgs.cs" />
+    <Compile Include="Events\ListEndEventArgs.cs" />
+    <Compile Include="Events\ListEventArgs.cs" />
+    <Compile Include="Events\ListStartEventArgs.cs" />
     <Compile Include="Events\ModeChangeEventArgs.cs" />
     <Compile Include="Events\PrivateMessageEventArgs.cs" />
     <Compile Include="Events\RawMessageEventArgs.cs" />
@@ -58,6 +61,7 @@
     <Compile Include="Events\WhoIsEventArgs.cs" />
     <Compile Include="Handlers\ChannelHandlers.cs" />
     <Compile Include="Handlers\ErrorHandlers.cs" />
+    <Compile Include="Handlers\ListHandlers.cs" />
     <Compile Include="Handlers\ListingHandlers.cs" />
     <Compile Include="Handlers\MessageHandlers.cs" />
     <Compile Include="Handlers\MOTDHandlers.cs" />

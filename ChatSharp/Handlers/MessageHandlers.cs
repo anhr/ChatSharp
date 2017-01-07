@@ -67,6 +67,16 @@ namespace ChatSharp.Handlers
             client.SetHandler("405", ErrorHandlers.HandleError);//ERR_TOOMANYCHANNELS "<channel name> :You have joined too many \ channels"
             client.SetHandler("406", ErrorHandlers.HandleError);//ERR_WASNOSUCHNICK "<nickname> :There was no such nickname"
             client.SetHandler("407", ErrorHandlers.HandleError);//ERR_TOOMANYTARGETS "<target> :Duplicate recipients. No message \
+
+            //Replies RPL_LISTSTART, RPL_LIST, RPL_LISTEND mark
+            //      the start, actual replies with data and end of the
+            //      server's response to a LIST command.  If there are
+            //      no channels available to return, only the start
+            //      and end reply must be sent.
+            //See https://tools.ietf.org/html/rfc1459#section-4.2.6 for details
+            client.SetHandler("321", ListHandlers.HandleListStart);//RPL_LISTSTART "Channel :Users  Name"
+            client.SetHandler("322", ListHandlers.HandleList);//RPL_LIST "<channel> <# visible> :<topic>"
+            client.SetHandler("323", ListHandlers.HandleListEnd);//RPL_LISTEND ":End of /LIST"
         }
 
         public static void HandleNick(IrcClient client, IrcMessage message)

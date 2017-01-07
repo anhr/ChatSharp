@@ -191,5 +191,16 @@ namespace ChatSharp
                 }));
             SendRawMessage("MODE {0} {1}", channel, mode);
         }
+        /// <summary>
+        /// List message. rfc1459#section-4.2.6
+        /// <para><param name="channels">channels: Comma separated channels list. If  the channels  parameter  is  used,  only the  status of  that channel is displayed.</param></para>
+        /// <para><param name="server">server: </param></para>
+        /// </summary>
+        public void List(string channels = null, string server = null)
+        {
+            //https://tools.ietf.org/html/rfc1459#section-4.2.6
+            SendRawMessage("LIST {0} {1}", channels, server);
+        }
+
     }
 }

@@ -1,6 +1,3 @@
-using ChatSharp.Events;
-using System.Linq;
-
 namespace ChatSharp.Handlers
 {
     /// <summary>

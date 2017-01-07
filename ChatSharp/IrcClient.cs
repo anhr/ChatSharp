@@ -196,6 +196,12 @@ namespace ChatSharp
         /// </summary>
         public void Quit(string reason)
         {
+            if (NetworkStream == null)
+            {
+                //The QUIT command was called not once
+                OnNetworkError(new SocketErrorEventArgs(SocketError.NotConnected));
+                return;
+            }
             if (reason == null)
                 SendRawMessage("QUIT");
             else
@@ -280,6 +286,11 @@ namespace ChatSharp
                 HandleMessage(message);
                 Array.Copy(ReadBuffer, messageLength, ReadBuffer, 0, length - messageLength);
                 length -= messageLength;
+            }
+            if (NetworkStream == null)
+            {
+                OnNetworkError(new SocketErrorEventArgs(SocketError.NotConnected));
+                return;
             }
             NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length - ReadBufferIndex, DataRecieved, null);
         }
@@ -550,6 +561,30 @@ namespace ChatSharp
         internal void OnUserQuit(UserEventArgs e)
         {
             if (UserQuit != null) UserQuit(this, e);
+        }
+        /// <summary>
+        /// IRC server's reply 321 RPL_LISTSTART "Channel :Users  Name". rfc1459#section-4.2.6 Command responses.
+        /// </summary>
+        public event EventHandler<Events.ListStartEventArgs> ListStart;
+        internal void OnListStart(Events.ListStartEventArgs e)
+        {
+            if (ListStart != null) ListStart(this, e);
+        }
+        /// <summary>
+        /// IRC server's reply 322 RPL_LIST "channel # visible :topic". rfc1459#section-4.2.6 Command responses.
+        /// </summary>
+        public event EventHandler<Events.ListEventArgs> ListReply;
+        internal void OnList(Events.ListEventArgs e)
+        {
+            if (ListReply != null) ListReply(this, e);
+        }
+        /// <summary>
+        /// IRC server's reply 323 RPL_LISTEND ":End of /LIST". rfc1459#section-4.2.6 Command responses.
+        /// </summary>
+        public event EventHandler<Events.ListEndEventArgs> ListEnd;
+        internal void OnListEnd(Events.ListEndEventArgs e)
+        {
+            if (ListEnd != null) ListEnd(this, e);
         }
     }
 }
