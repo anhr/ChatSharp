@@ -208,7 +208,7 @@ namespace ChatSharp
         {
             //https://tools.ietf.org/html/rfc1459#section-4.2.6
             var list = new ChatSharp.List(callbackStart, callbackEnd);
-            RequestManager.QueueOperation("LIST" + (channels == null ? "" : " " + channels), new RequestOperation(list, ro =>
+            RequestManager.QueueOperation("LIST", new RequestOperation(list, ro =>
             {
                 if (callback != null)
                     callback((List)ro.State);
