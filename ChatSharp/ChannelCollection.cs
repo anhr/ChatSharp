@@ -10,10 +10,7 @@ namespace ChatSharp
     /// </summary>
     public class ChannelCollection : IEnumerable<IrcChannel>
     {
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        public ChannelCollection()
+        internal ChannelCollection()
         {
             Channels = new List<IrcChannel>();
         }
@@ -37,7 +34,10 @@ namespace ChatSharp
         {
             Channels.Remove(channel);
         }
-
+        internal void RemoveAll()
+        {
+            Channels.RemoveAll(item => true);
+        }
         /// <summary>
         /// Join the specified channel. Only applicable for your own user.
         /// </summary>
@@ -89,14 +89,6 @@ namespace ChatSharp
             var channel = new IrcChannel(Client, name);
             this.Add(channel);
             return channel;
-        }
-
-        /// <summary>
-        /// Add channel from IRC server's reply 322 RPL_LIST "channel # visible :topic". See rfc1459#section-6.2  Command responses.
-        /// </summary>
-        public void Add(IrcMessage message)
-        {
-            this.Add(new IrcChannel(Client, message));
         }
 
         /// <summary>

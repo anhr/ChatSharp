@@ -49,9 +49,7 @@
     <Compile Include="Events\ErrorReplieEventArgs.cs" />
     <Compile Include="Events\IrcNoticeEventArgs.cs" />
     <Compile Include="Events\ErronousNickEventArgs.cs" />
-    <Compile Include="Events\ListEndEventArgs.cs" />
-    <Compile Include="Events\ListEventArgs.cs" />
-    <Compile Include="Events\ListStartEventArgs.cs" />
+    <Compile Include="Events\ListErrorEventArgs.cs" />
     <Compile Include="Events\ModeChangeEventArgs.cs" />
     <Compile Include="Events\PrivateMessageEventArgs.cs" />
     <Compile Include="Events\RawMessageEventArgs.cs" />
@@ -73,6 +71,7 @@
     <Compile Include="IrcMessage.cs" />
     <Compile Include="IrcProtocolException.cs" />
     <Compile Include="IrcUser.cs" />
+    <Compile Include="List.cs" />
     <Compile Include="Mask.cs" />
     <Compile Include="MaskCollection.cs" />
     <Compile Include="PrivateMessage.cs" />

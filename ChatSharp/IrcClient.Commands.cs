@@ -192,13 +192,27 @@ namespace ChatSharp
             SendRawMessage("MODE {0} {1}", channel, mode);
         }
         /// <summary>
-        /// List message. rfc1459#section-4.2.6
+        /// List message. https://tools.ietf.org/html/rfc1459#section-4.2.6
+        /// <para><param name="callbackStart">callbackStart: Called when a IRC server's 321 RPL_LISTSTART "Channel :Users  Name" response to a LIST message.</param></para>
+        /// <para><param name="callback">callback: Called when a IRC server's 322 RPL_LIST "channel # visible :topic" response to a LIST message.</param></para>
+        /// <para><param name="callbackEnd">callbackEnd: Called when a IRC server's 323 RPL_LISTEND ":End of /LIST" response to a LIST message.</param></para>
         /// <para><param name="channels">channels: Comma separated channels list. If  the channels  parameter  is  used,  only the  status of  that channel is displayed.</param></para>
-        /// <para><param name="server">server: </param></para>
+        /// <para><param name="server">server: server's address</param></para>
         /// </summary>
-        public void List(string channels = null, string server = null)
+        public void List(
+            Action<List> callbackStart = null
+            , Action<List> callback = null
+            , Action<List> callbackEnd = null
+            , string channels = null
+            , string server = null)
         {
             //https://tools.ietf.org/html/rfc1459#section-4.2.6
+            var list = new ChatSharp.List(callbackStart, callbackEnd);
+            RequestManager.QueueOperation("LIST" + (channels == null ? "" : " " + channels), new RequestOperation(list, ro =>
+            {
+                if (callback != null)
+                    callback((List)ro.State);
+            }));
             SendRawMessage("LIST {0} {1}", channels, server);
         }
 

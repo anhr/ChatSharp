@@ -108,6 +108,10 @@ namespace ChatSharp
         /// </summary>
         public ChannelCollection Channels { get; private set; }
         /// <summary>
+        /// Collection of all channels as reply of the LIST message. See https://tools.ietf.org/html/rfc1459#section-4.2.6
+        /// </summary>
+        public ChannelCollection ChannelsList { get; set; }
+        /// <summary>
         /// Settings that control the behavior of ChatSharp.
         /// </summary>
         public ClientSettings Settings { get; set; }
@@ -563,28 +567,12 @@ namespace ChatSharp
             if (UserQuit != null) UserQuit(this, e);
         }
         /// <summary>
-        /// IRC server's reply 321 RPL_LISTSTART "Channel :Users  Name". rfc1459#section-4.2.6 Command responses.
+        /// Raised for add channel errors.
         /// </summary>
-        public event EventHandler<Events.ListStartEventArgs> ListStart;
-        internal void OnListStart(Events.ListStartEventArgs e)
+        public event EventHandler<Events.ListErrorEventArgs> ListError;
+        internal void OnListError(Events.ListErrorEventArgs e)
         {
-            if (ListStart != null) ListStart(this, e);
-        }
-        /// <summary>
-        /// IRC server's reply 322 RPL_LIST "channel # visible :topic". rfc1459#section-4.2.6 Command responses.
-        /// </summary>
-        public event EventHandler<Events.ListEventArgs> ListReply;
-        internal void OnList(Events.ListEventArgs e)
-        {
-            if (ListReply != null) ListReply(this, e);
-        }
-        /// <summary>
-        /// IRC server's reply 323 RPL_LISTEND ":End of /LIST". rfc1459#section-4.2.6 Command responses.
-        /// </summary>
-        public event EventHandler<Events.ListEndEventArgs> ListEnd;
-        internal void OnListEnd(Events.ListEndEventArgs e)
-        {
-            if (ListEnd != null) ListEnd(this, e);
+            if (ListError != null) ListError(this, e);
         }
     }
 }
