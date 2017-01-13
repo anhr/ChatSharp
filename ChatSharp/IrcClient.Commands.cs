@@ -58,7 +58,6 @@ namespace ChatSharp
             if (!Channels.Contains(channel))
                 throw new InvalidOperationException("Client is not present in channel.");
             SendRawMessage("PART {0}", channel);
-            Channels.Remove(Channels[channel]);
         }
 
         /// <summary>
@@ -69,7 +68,6 @@ namespace ChatSharp
             if (!Channels.Contains(channel))
                 throw new InvalidOperationException("Client is not present in channel.");
             SendRawMessage("PART {0} :{1}", channel, reason);
-            Channels.Remove(Channels[channel]);
         }
 
         /// <summary>

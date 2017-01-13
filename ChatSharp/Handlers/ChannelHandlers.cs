@@ -45,6 +45,7 @@ namespace ChatSharp.Handlers
                 user.Channels.Remove(channel);
             client.OnUserPartedChannel(new ChannelUserEventArgs(client.Channels[message.Parameters[0]],
                 new IrcUser(message.Prefix)));
+            client.Channels.Remove(channel);
         }
 
         private static void GetOrAddUser(IrcClient client, IrcChannel channel, IrcMessage message, string nick, char? mode)
