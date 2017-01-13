@@ -32,6 +32,8 @@ namespace ChatSharp.Handlers
                 var request = client.RequestManager.PeekOperation("LIST");
                 List list = (List)request.State;
                 list.Channel = new IrcChannel(client, message);
+                if (client.ChannelsList.IsChannelExists(list.Channel))
+                    return;
                 client.ChannelsList.Add(list.Channel);
                 if (request.Callback != null)
                     request.Callback(request);

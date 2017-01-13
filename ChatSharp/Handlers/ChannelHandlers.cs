@@ -47,54 +47,85 @@ namespace ChatSharp.Handlers
                 new IrcUser(message.Prefix)));
         }
 
-        public static void HandleUserListPart(IrcClient client, IrcMessage message)
+        private static void GetOrAddUser(IrcClient client, IrcChannel channel, IrcMessage message, string nick, char? mode)
         {
-            var channel = client.Channels[message.Parameters[2]];
-            var users = message.Parameters[3].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var user = client.Users.GetOrAdd(nick);
+            if(!user.Channels.IsChannelExists(channel))
+                user.Channels.Add(channel);
+            if (!user.ChannelModes.ContainsKey(channel))
+                user.ChannelModes.Add(channel, mode);
+            else
+                user.ChannelModes[channel] = mode;
+            var request = client.RequestManager.PeekOperation("NAMES");
+            if (request == null)
+                request = client.RequestManager.PeekOperation("NAMES " + message.Parameters[2]);
+            if (request == null)
+                return;//IRC server sent 353 RPL_NAMREPLY reply automatically
+            Names names = ((Names)request.State);
+            names.User = user;
+            names.Channel = channel;
+            if (request.Callback != null)
+                request.Callback(request);
+        }
+
+        private static void UserListPart(IrcClient client, IrcChannel channel, IrcMessage message, string[] users)
+        {
+            if (channel == null)
+                return;
             foreach (var nick in users)
             {
                 if (string.IsNullOrWhiteSpace(nick))
                     continue;
                 var mode = client.ServerInfo.GetModeForPrefix(nick[0]);
                 if (mode == null)
-                {
-                    var user = client.Users.GetOrAdd(nick);
-                    if (!user.Channels.Contains(channel))
-                        user.Channels.Add(channel);
-                    if (!user.ChannelModes.ContainsKey(channel))
-                        user.ChannelModes.Add(channel, null);
-                    else
-                        user.ChannelModes[channel] = null;
-                }
-                else
-                {
-                    var user = client.Users.GetOrAdd(nick.Substring(1));
-                    if (!user.Channels.Contains(channel))
-                        user.Channels.Add(channel);
-                    if (!user.ChannelModes.ContainsKey(channel))
-                        user.ChannelModes.Add(channel, mode.Value);
-                    else
-                        user.ChannelModes[channel] = mode.Value;
-                }
+                    GetOrAddUser(client, channel, message, nick, null);
+                else GetOrAddUser(client, channel, message, nick.Substring(1), mode.Value);
+            }
+        }
+
+        public static void HandleUserListPart(IrcClient client, IrcMessage message)
+        {
+            var users = message.Parameters[3].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string channelName = message.Parameters[2];
+            var channel = client.Channels.GetChannel(channelName);
+            if (channel != null)
+                UserListPart(client, channel, message, users);//Add new user into channel where user has joined to.
+            if (client.ChannelsList != null)
+            {
+                channel = client.ChannelsList.GetChannel(channelName);
+                if (channel == null)
+                    client.ChannelsList.Add(new IrcChannel(client, channelName));
+                UserListPart(client, client.ChannelsList[channelName], message, users);//Add new user into channel from collection of all channels as reply of the LIST message.
             }
         }
 
         public static void HandleUserListEnd(IrcClient client, IrcMessage message)
         {
-            var channel = client.Channels[message.Parameters[1]];
-            client.OnChannelListRecieved(new ChannelEventArgs(channel));
-            if (client.Settings.ModeOnJoin)
+            var channel = client.Channels.GetChannel(message.Parameters[1]);
+            if (channel != null)
             {
-                try
+                client.OnChannelListRecieved(new ChannelEventArgs(channel));
+                if (client.Settings.ModeOnJoin)
                 {
-                    client.GetMode(channel.Name, c => { /* no-op */ });
+                    try
+                    {
+                        client.GetMode(channel.Name, c => { /* no-op */ });
+                    }
+                    catch { /* who cares */ }
                 }
-                catch { /* who cares */ }
+                if (client.Settings.WhoIsOnJoin)
+                {
+                    Task.Factory.StartNew(() => WhoIsChannel(channel, client, 0));
+                }
             }
-            if (client.Settings.WhoIsOnJoin)
-            {
-                Task.Factory.StartNew(() => WhoIsChannel(channel, client, 0));
-            }
+            var request = client.RequestManager.DequeueOperation("NAMES" + (message.Parameters[1] == "*" ? "" : " " + message.Parameters[1]));
+            if (request == null)
+                return;//IRC server sent 366 RPL_ENDOFNAMES reply automatically
+            Names names = (Names)request.State;
+            names.Message = message;
+            names.Channel = channel;
+            if (names.CallbackEnd != null)
+                names.CallbackEnd(names);
         }
 
         private static void WhoIsChannel(IrcChannel channel, IrcClient client, int index)

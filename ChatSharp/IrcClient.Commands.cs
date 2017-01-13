@@ -194,7 +194,7 @@ namespace ChatSharp
         /// <summary>
         /// List message. https://tools.ietf.org/html/rfc1459#section-4.2.6
         /// <para><param name="callbackStart">callbackStart: Called when a IRC server's 321 RPL_LISTSTART "Channel :Users  Name" response to a LIST message.</param></para>
-        /// <para><param name="callback">callback: Called when a IRC server's 322 RPL_LIST "channel # visible :topic" response to a LIST message.</param></para>
+        /// <para><param name="callback">callback: Called when a IRC server's 322 RPL_LIST &lt;channel&gt; # &lt;visible&gt; :&lt;topic&gt;" response to a LIST message.</param></para>
         /// <para><param name="callbackEnd">callbackEnd: Called when a IRC server's 323 RPL_LISTEND ":End of /LIST" response to a LIST message.</param></para>
         /// <para><param name="channels">channels: Comma separated channels list. If  the channels  parameter  is  used,  only the  status of  that channel is displayed.</param></para>
         /// <para><param name="server">server: server's address</param></para>
@@ -206,7 +206,6 @@ namespace ChatSharp
             , string channels = null
             , string server = null)
         {
-            //https://tools.ietf.org/html/rfc1459#section-4.2.6
             var list = new ChatSharp.List(callbackStart, callbackEnd);
             RequestManager.QueueOperation("LIST", new RequestOperation(list, ro =>
             {
@@ -215,6 +214,27 @@ namespace ChatSharp
             }));
             SendRawMessage("LIST {0} {1}", channels, server);
         }
-
+        /// <summary>
+        /// Names message. https://tools.ietf.org/html/rfc1459#section-4.2.5
+        /// <para><param name="channels">channels: Comma separated channels list. If  the channels  parameter  is  used, specifies which channel(s) to return information about if valid.</param></para>
+        /// <para><param name="callback">callback: Called when a IRC server's 353 RPL_NAMREPLY "&lt;channel&gt; :[[@|+]&lt;nick&gt; [[@|+]&lt;nick&gt; [...]]]" response to a NAMES message.</param></para>
+        /// <para><param name="callbackEnd">callbackEnd: Called when a IRC server's 366 RPL_ENDOFNAMES "&lt;channel&gt; :End of /NAMES list" response to a NAMES message.</param></para>
+        /// </summary>
+        public void Names(
+            string channels = null
+            , Action<Names> callback = null
+            , Action<Names> callbackEnd = null
+            )
+        {
+            if (this.ChannelsList == null)
+                this.ChannelsList = new ChannelCollection();
+            var names = new ChatSharp.Names(callbackEnd);
+            RequestManager.QueueOperation("NAMES" + (channels == null ? "" : " " + channels), new RequestOperation(names, ro =>
+            {
+                if (callback != null)
+                    callback((Names)ro.State);
+            }));
+            SendRawMessage("NAMES {0}", channels);
+        }
     }
 }

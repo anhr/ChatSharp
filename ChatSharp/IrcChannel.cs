@@ -59,10 +59,9 @@ namespace ChatSharp
         /// <summary>
         /// Create channel from IRC server's reply 322 RPL_LIST "channel # visible :topic". See rfc1459#section-6.2  Command responses.
         /// </summary>
-        public IrcChannel(IrcClient client, IrcMessage message)
+        internal IrcChannel(IrcClient client, IrcMessage message)
+            : this(client, message.Parameters[1])//Channel
         {
-            Client = client;
-            Name = message.Parameters[1];//Channel
             UsersCount = uint.Parse(message.Parameters[2]);//# visible
             _Topic = message.Parameters[3];
         }
