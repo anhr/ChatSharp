@@ -62,9 +62,9 @@ namespace ChatSharp.Handlers
                 request = client.RequestManager.PeekOperation("NAMES " + message.Parameters[2]);
             if (request == null)
                 return;//IRC server sent 353 RPL_NAMREPLY reply automatically
-            Names names = ((Names)request.State);
-            names.User = user;
-            names.Channel = channel;
+            NamesState namesState = ((NamesState)request.State);
+            namesState.User = user;
+            namesState.Channel = channel;
             if (request.Callback != null)
                 request.Callback(request);
         }
@@ -123,11 +123,11 @@ namespace ChatSharp.Handlers
             var request = client.RequestManager.DequeueOperation("NAMES" + (message.Parameters[1] == "*" ? "" : " " + message.Parameters[1]));
             if (request == null)
                 return;//IRC server sent 366 RPL_ENDOFNAMES reply automatically
-            Names names = (Names)request.State;
-            names.Message = message;
-            names.Channel = channel;
-            if (names.CallbackEnd != null)
-                names.CallbackEnd(names);
+            NamesState namesState = (NamesState)request.State;
+            namesState.Message = message;
+            namesState.Channel = channel;
+            if (namesState.CallbackEnd != null)
+                namesState.CallbackEnd(namesState);
         }
 
         private static void WhoIsChannel(IrcChannel channel, IrcClient client, int index)

@@ -17,10 +17,10 @@ namespace ChatSharp.Handlers
                 client.ChannelsList = new ChannelCollection();
             else
                 client.ChannelsList.RemoveAll();//The LIST mesage was sent to IRC server not once 
-            List list = (List)(client.RequestManager.PeekOperation("LIST")).State;
-            list.Message = message;
-            if (list.CallbackStart != null)
-                list.CallbackStart(list);
+            ListState listState = (ListState)(client.RequestManager.PeekOperation("LIST")).State;
+            listState.Message = message;
+            if (listState.CallbackStart != null)
+                listState.CallbackStart(listState);
         }
         /// <summary>
         /// 322 RPL_LIST "channel # visible :topic"
@@ -31,11 +31,11 @@ namespace ChatSharp.Handlers
             try
             {
                 var request = client.RequestManager.PeekOperation("LIST");
-                List list = (List)request.State;
-                list.Channel = new IrcChannel(client, message);
-                if (client.ChannelsList.Contains(list.Channel))
+                ListState listState = (ListState)request.State;
+                listState.Channel = new IrcChannel(client, message);
+                if (client.ChannelsList.Contains(listState.Channel))
                     return;
-                client.ChannelsList.Add(list.Channel);
+                client.ChannelsList.Add(listState.Channel);
                 if (request.Callback != null)
                     request.Callback(request);
             }
@@ -58,10 +58,10 @@ namespace ChatSharp.Handlers
         /// </summary>
         public static void HandleListEnd(IrcClient client, IrcMessage message)
         {
-            List list = (List)(client.RequestManager.DequeueOperation("LIST")).State;
-            list.Message = message;
-            if (list.CallbackEnd != null)
-                list.CallbackEnd(list);
+            ListState listState = (ListState)(client.RequestManager.DequeueOperation("LIST")).State;
+            listState.Message = message;
+            if (listState.CallbackEnd != null)
+                listState.CallbackEnd(listState);
         }
     }
 }

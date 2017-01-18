@@ -198,17 +198,17 @@ namespace ChatSharp
         /// <para><param name="server">server: server's address</param></para>
         /// </summary>
         public void List(
-            Action<List> callbackStart = null,
-            Action<List> callback = null,
-            Action<List> callbackEnd = null,
+            Action<ListState> callbackStart = null,
+            Action<ListState> callback = null,
+            Action<ListState> callbackEnd = null,
             string channels = null,
             string server = null)
         {
-            var list = new ChatSharp.List(callbackStart, callbackEnd);
-            RequestManager.QueueOperation("LIST", new RequestOperation(list, ro =>
+            var listState = new ChatSharp.ListState(callbackStart, callbackEnd);
+            RequestManager.QueueOperation("LIST", new RequestOperation(listState, ro =>
             {
                 if (callback != null)
-                    callback((List)ro.State);
+                    callback((ListState)ro.State);
             }));
             SendRawMessage("LIST {0} {1}", channels, server);
         }
@@ -220,17 +220,17 @@ namespace ChatSharp
         /// </summary>
         public void Names(
             string channels = null,
-            Action<Names> callback = null,
-            Action<Names> callbackEnd = null
+            Action<NamesState> callback = null,
+            Action<NamesState> callbackEnd = null
             )
         {
             if (this.ChannelsList == null)
                 this.ChannelsList = new ChannelCollection();
-            var names = new ChatSharp.Names(callbackEnd);
-            RequestManager.QueueOperation("NAMES" + (channels == null ? "" : " " + channels), new RequestOperation(names, ro =>
+            var namesState = new ChatSharp.NamesState(callbackEnd);
+            RequestManager.QueueOperation("NAMES" + (channels == null ? "" : " " + channels), new RequestOperation(namesState, ro =>
             {
                 if (callback != null)
-                    callback((Names)ro.State);
+                    callback((NamesState)ro.State);
             }));
             SendRawMessage("NAMES {0}", channels);
         }
