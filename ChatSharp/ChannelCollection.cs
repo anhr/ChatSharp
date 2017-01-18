@@ -23,14 +23,14 @@ namespace ChatSharp
         private IrcClient Client { get; set; }
         private List<IrcChannel> Channels { get; set; }
 
-        internal bool IsChannelExists(IrcChannel channel)
+        internal bool Contains(IrcChannel channel)
         {
             return Channels.Any(c => c.Name == channel.Name);
         }
 
         internal void Add(IrcChannel channel)
         {
-            if (IsChannelExists(channel))
+            if (Contains(channel))
                 throw new InvalidOperationException("That channel already exists in this collection.");
             Channels.Add(channel);
         }

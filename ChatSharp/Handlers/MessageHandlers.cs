@@ -74,6 +74,7 @@ namespace ChatSharp.Handlers
             client.SetHandler("474", ErrorHandlers.HandleError);//ERR_BANNEDFROMCHAN "<channel> :Cannot join channel (+b)"
             client.SetHandler("475", ErrorHandlers.HandleError);//ERR_BADCHANNELKEY "<channel> :Cannot join channel (+k)"
             client.SetHandler("477", ErrorHandlers.HandleError);//"<channel> :Cannot join channel (+r) - you need to be identified with services"
+            client.SetHandler("538", ErrorHandlers.HandleError);//"<channel1> is linked to <channel2> but <channel2> is not accepting links from <channel1>." reply from irc.swiftirc.net IRC server
 
             //Replies RPL_LISTSTART, RPL_LIST, RPL_LISTEND mark
             //      the start, actual replies with data and end of the
