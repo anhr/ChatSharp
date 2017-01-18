@@ -198,11 +198,11 @@ namespace ChatSharp
         /// <para><param name="server">server: server's address</param></para>
         /// </summary>
         public void List(
-            Action<List> callbackStart = null
-            , Action<List> callback = null
-            , Action<List> callbackEnd = null
-            , string channels = null
-            , string server = null)
+            Action<List> callbackStart = null,
+            Action<List> callback = null,
+            Action<List> callbackEnd = null,
+            string channels = null,
+            string server = null)
         {
             var list = new ChatSharp.List(callbackStart, callbackEnd);
             RequestManager.QueueOperation("LIST", new RequestOperation(list, ro =>
@@ -219,9 +219,9 @@ namespace ChatSharp
         /// <para><param name="callbackEnd">callbackEnd: Called when a IRC server's 366 RPL_ENDOFNAMES "&lt;channel&gt; :End of /NAMES list" response to a NAMES message.</param></para>
         /// </summary>
         public void Names(
-            string channels = null
-            , Action<Names> callback = null
-            , Action<Names> callbackEnd = null
+            string channels = null,
+            Action<Names> callback = null,
+            Action<Names> callbackEnd = null
             )
         {
             if (this.ChannelsList == null)
