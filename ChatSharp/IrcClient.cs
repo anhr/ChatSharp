@@ -569,8 +569,8 @@ namespace ChatSharp
         /// <summary>
         /// Raised for add channel errors.
         /// </summary>
-        public event EventHandler<Events.ListErrorEventArgs> ListError;
-        internal void OnListError(Events.ListErrorEventArgs e)
+        public event EventHandler<Events.ErrorEventArgs> ListError;
+        internal void OnListError(Events.ErrorEventArgs e)
         {
             if (ListError != null) ListError(this, e);
         }

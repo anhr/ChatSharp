@@ -27,7 +27,6 @@ namespace ChatSharp.Handlers
         /// </summary>
         public static void HandleList(IrcClient client, IrcMessage message)
         {
-            string strError = "";
             try
             {
                 var request = client.RequestManager.PeekOperation("LIST");
@@ -39,18 +38,13 @@ namespace ChatSharp.Handlers
                 if (request.Callback != null)
                     request.Callback(request);
             }
-            catch (InvalidOperationException exception)
+            catch (InvalidOperationException e)
             {
-                strError = exception.ToString();
+                client.OnListError(new Events.ErrorEventArgs(e));
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-                strError = exception.ToString();
-            }
-            if (strError != "")
-            {
-                client.OnListError(new Events.ListErrorEventArgs(strError));
-                return;
+                client.OnListError(new Events.ErrorEventArgs(e));
             }
         }
         /// <summary>
