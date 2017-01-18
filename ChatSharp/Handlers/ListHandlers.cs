@@ -15,10 +15,11 @@ namespace ChatSharp.Handlers
         {
             if (client.ChannelsList == null)
                 client.ChannelsList = new ChannelCollection();
-            else client.ChannelsList.RemoveAll();//The LIST mesage was sent to IRC server not once 
+            else
+                client.ChannelsList.RemoveAll();//The LIST mesage was sent to IRC server not once 
             List list = (List)(client.RequestManager.PeekOperation("LIST")).State;
             list.Message = message;
-            if(list.CallbackStart != null)
+            if (list.CallbackStart != null)
                 list.CallbackStart(list);
         }
         /// <summary>
@@ -59,7 +60,7 @@ namespace ChatSharp.Handlers
         {
             List list = (List)(client.RequestManager.DequeueOperation("LIST")).State;
             list.Message = message;
-            if(list.CallbackEnd != null)
+            if (list.CallbackEnd != null)
                 list.CallbackEnd(list);
         }
     }

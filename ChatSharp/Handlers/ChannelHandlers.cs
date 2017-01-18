@@ -51,7 +51,7 @@ namespace ChatSharp.Handlers
         private static void GetOrAddUser(IrcClient client, IrcChannel channel, IrcMessage message, string nick, char? mode)
         {
             var user = client.Users.GetOrAdd(nick);
-            if(!user.Channels.Contains(channel))
+            if (!user.Channels.Contains(channel))
                 user.Channels.Add(channel);
             if (!user.ChannelModes.ContainsKey(channel))
                 user.ChannelModes.Add(channel, mode);
@@ -80,7 +80,8 @@ namespace ChatSharp.Handlers
                 var mode = client.ServerInfo.GetModeForPrefix(nick[0]);
                 if (mode == null)
                     GetOrAddUser(client, channel, message, nick, null);
-                else GetOrAddUser(client, channel, message, nick.Substring(1), mode.Value);
+                else
+                    GetOrAddUser(client, channel, message, nick.Substring(1), mode.Value);
             }
         }
 
