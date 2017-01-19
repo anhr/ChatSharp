@@ -133,10 +133,10 @@ namespace ChatSharp
 
         /// <summary>
         /// Creates a new IRC client, but will not connect until ConnectAsync is called.
-        /// <para><param name="serverAddress">serverAddress: Server address including port in the form of "hostname:port".</param></para>
-        /// <para><param name="user">user: The IRC user to connect as.</param></para>
-        /// <para><param name="useSSL">useSSL: Connect with SSL if true.</param></para>
         /// </summary>
+        /// <param name="serverAddress">Server address including port in the form of "hostname:port".</param>
+        /// <param name="user">The IRC user to connect as.</param>
+        /// <param name="useSSL">Connect with SSL if true.</param>
         public IrcClient(string serverAddress, IrcUser user, bool useSSL = false)
         {
             if (serverAddress == null) throw new ArgumentNullException("serverAddress");
