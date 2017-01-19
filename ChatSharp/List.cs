@@ -12,21 +12,8 @@ namespace ChatSharp
         /// </summary>
         public IrcChannel Channel { get; set; }
         /// <summary>
-        /// Called when a IRC server's 321 RPL_LISTSTART "Channel :Users  Name" response to a LIST message.
-        /// </summary>
-        public Action<ListState> CallbackStart { get; set; }
-        /// <summary>
-        /// Called when a IRC server's 323 RPL_LISTEND ":End of /LIST" response to a LIST message.
-        /// </summary>
-        public Action<ListState> CallbackEnd { get; set; }
-        /// <summary>
         /// IRC server's 323 RPL_LISTEND ":End of /LIST" reply.
         /// </summary>
         public IrcMessage Message { get; set; }
-        internal ListState(Action<ListState> callbackStart, Action<ListState> callbackEnd)
-        {
-            CallbackStart = callbackStart;
-            CallbackEnd = callbackEnd;
-        }
     }
 }

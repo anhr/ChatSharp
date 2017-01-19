@@ -192,18 +192,14 @@ namespace ChatSharp
         /// <summary>
         /// List message. https://tools.ietf.org/html/rfc1459#section-4.2.6
         /// </summary>
-        /// <param name="callbackStart">Called when a IRC server's 321 RPL_LISTSTART "Channel :Users  Name" response to a LIST message.</param>
         /// <param name="callback">Called when a IRC server's 322 RPL_LIST &lt;channel&gt; # &lt;visible&gt; :&lt;topic&gt;" response to a LIST message.</param>
-        /// <param name="callbackEnd">Called when a IRC server's 323 RPL_LISTEND ":End of /LIST" response to a LIST message.</param>
         /// <param name="channels">Comma separated channels list. If  the channels  parameter  is  used,  only the  status of  that channel is displayed.</param>
         /// <param name="server">server's address</param>
-        public void List(Action<ListState> callbackStart = null,
-            Action<ListState> callback = null,
-            Action<ListState> callbackEnd = null,
+        public void List(Action<ListState> callback = null,
             string channels = null,
             string server = null)
         {
-            var listState = new ChatSharp.ListState(callbackStart, callbackEnd);
+            var listState = new ChatSharp.ListState();
             RequestManager.QueueOperation("LIST", new RequestOperation(listState, ro =>
             {
                 if (callback != null)

@@ -17,10 +17,7 @@ namespace ChatSharp.Handlers
                 client.ChannelsList = new ChannelCollection();
             else
                 client.ChannelsList.RemoveAll();//The LIST mesage was sent to IRC server not once 
-            ListState listState = (ListState)(client.RequestManager.PeekOperation("LIST")).State;
-            listState.Message = message;
-            if (listState.CallbackStart != null)
-                listState.CallbackStart(listState);
+            client.OnListStart(new Events.ListStartEventArgs(message));
         }
         /// <summary>
         /// 322 RPL_LIST "channel # visible :topic"
@@ -35,8 +32,7 @@ namespace ChatSharp.Handlers
                 if (client.ChannelsList.Contains(listState.Channel))
                     return;
                 client.ChannelsList.Add(listState.Channel);
-                if (request.Callback != null)
-                    request.Callback(request);
+                client.OnListPartRecieved(new Events.ListEventArgs(listState));
             }
             catch (InvalidOperationException e)
             {
@@ -52,10 +48,10 @@ namespace ChatSharp.Handlers
         /// </summary>
         public static void HandleListEnd(IrcClient client, IrcMessage message)
         {
-            ListState listState = (ListState)(client.RequestManager.DequeueOperation("LIST")).State;
-            listState.Message = message;
-            if (listState.CallbackEnd != null)
-                listState.CallbackEnd(listState);
+            var request = client.RequestManager.PeekOperation("LIST");
+            ((ListState)request.State).Message = message;
+            if (request.Callback != null)
+                request.Callback(request);
         }
     }
 }

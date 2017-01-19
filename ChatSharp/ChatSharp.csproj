@@ -49,6 +49,8 @@
     <Compile Include="Events\ErrorReplieEventArgs.cs" />
     <Compile Include="Events\IrcNoticeEventArgs.cs" />
     <Compile Include="Events\ErronousNickEventArgs.cs" />
+    <Compile Include="Events\ListEventArgs.cs" />
+    <Compile Include="Events\ListStartEventArgs.cs" />
     <Compile Include="Events\ModeChangeEventArgs.cs" />
     <Compile Include="Events\PrivateMessageEventArgs.cs" />
     <Compile Include="Events\RawMessageEventArgs.cs" />

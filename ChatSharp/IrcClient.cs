@@ -574,5 +574,24 @@ namespace ChatSharp
         {
             if (ListError != null) ListError(this, e);
         }
+        /// <summary>
+        /// IRC server's reply 321 RPL_LISTSTART "Channel :Users  Name". rfc1459#section-4.2.6 Command responses.
+        /// </summary>
+        public event EventHandler<Events.ListStartEventArgs> ListStart;
+        internal void OnListStart(Events.ListStartEventArgs e)
+        {
+            if (this.ChannelsList == null)
+                this.ChannelsList = new ChannelCollection();
+            else this.ChannelsList.RemoveAll();
+            if (ListStart != null) ListStart(this, e);
+        }
+        /// <summary>
+        /// IRC server's reply 322 RPL_LIST "channel # visible :topic". rfc1459#section-4.2.6 Command responses.
+        /// </summary>
+        public event EventHandler<Events.ListEventArgs> ListReply;
+        internal void OnListPartRecieved(Events.ListEventArgs e)
+        {
+            if (ListReply != null) ListReply(this, e);
+        }
     }
 }
