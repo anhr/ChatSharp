@@ -65,8 +65,7 @@ namespace ChatSharp.Handlers
             NamesState namesState = ((NamesState)request.State);
             namesState.User = user;
             namesState.Channel = channel;
-            if (request.Callback != null)
-                request.Callback(request);
+            client.OnListUserPartRecieved(new Events.UserListEventArgs(namesState));
         }
 
         private static void UserListPart(IrcClient client, IrcChannel channel, IrcMessage message, string[] users)
@@ -126,8 +125,8 @@ namespace ChatSharp.Handlers
             NamesState namesState = (NamesState)request.State;
             namesState.Message = message;
             namesState.Channel = channel;
-            if (namesState.CallbackEnd != null)
-                namesState.CallbackEnd(namesState);
+            if (request.Callback != null)
+                request.Callback(request);
         }
 
         private static void WhoIsChannel(IrcChannel channel, IrcClient client, int index)

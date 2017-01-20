@@ -593,5 +593,13 @@ namespace ChatSharp
         {
             if (ListReply != null) ListReply(this, e);
         }
+        /// <summary>
+        /// IRC server's reply 353 RPL_NAMREPLY "&lt;channel&gt; :[[@|+]&lt;nick&lt; [[@|+]&lt;nick&lt; [...]]]". NAMES message reply. https://tools.ietf.org/html/rfc1459#section-4.2.5
+        /// </summary>
+        public event EventHandler<Events.UserListEventArgs> UserListReply;
+        internal void OnListUserPartRecieved(Events.UserListEventArgs e)
+        {
+            if (UserListReply != null) UserListReply(this, e);
+        }
     }
 }

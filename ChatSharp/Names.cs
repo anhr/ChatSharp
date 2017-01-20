@@ -16,16 +16,8 @@ namespace ChatSharp
         /// </summary>
         public IrcChannel Channel { get; set; }
         /// <summary>
-        /// Called when a IRC server's 366 RPL_ENDOFNAMES "&lt;channel&gt; :End of /NAMES list" response to a NAMES message.
-        /// </summary>
-        public Action<NamesState> CallbackEnd { get; set; }
-        /// <summary>
         /// IRC server's 366 RPL_ENDOFNAMES "&lt;channel&gt; :End of /NAMES list" reply.
         /// </summary>
         public IrcMessage Message { get; set; }
-        internal NamesState(Action<NamesState> callbackEnd)
-        {
-            CallbackEnd = callbackEnd;
-        }
     }
 }

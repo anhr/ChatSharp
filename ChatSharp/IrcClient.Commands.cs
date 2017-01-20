@@ -214,12 +214,11 @@ namespace ChatSharp
         /// <param name="callback">Called when a IRC server's 353 RPL_NAMREPLY "&lt;channel&gt; :[[@|+]&lt;nick&gt; [[@|+]&lt;nick&gt; [...]]]" response to a NAMES message.</param>
         /// <param name="callbackEnd">Called when a IRC server's 366 RPL_ENDOFNAMES "&lt;channel&gt; :End of /NAMES list" response to a NAMES message.</param>
         public void Names(string channels = null,
-            Action<NamesState> callback = null,
-            Action<NamesState> callbackEnd = null)
+            Action<NamesState> callback = null)
         {
             if (this.ChannelsList == null)
                 this.ChannelsList = new ChannelCollection();
-            var namesState = new ChatSharp.NamesState(callbackEnd);
+            var namesState = new ChatSharp.NamesState();
             RequestManager.QueueOperation("NAMES" + (channels == null ? "" : " " + channels), new RequestOperation(namesState, ro =>
             {
                 if (callback != null)

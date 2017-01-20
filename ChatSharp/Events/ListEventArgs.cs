@@ -10,7 +10,7 @@ namespace ChatSharp.Events
         /// <summary>
         /// The results of an IRC LIST query.
         /// </summary>
-        public ListState ListState { get; set; }
+        public ListState ListState { get; private set; }
         internal ListEventArgs(ListState listState)
         {
             ListState = listState;
