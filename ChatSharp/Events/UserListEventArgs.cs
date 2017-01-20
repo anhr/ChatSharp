@@ -10,6 +10,7 @@ namespace ChatSharp.Events
         /// <summary>
         /// The results of an IRC NAMES 353 RPL_NAMREPLY reply.
         /// </summary>
+        public NamesState NamesState { get; private set; }
         internal UserListEventArgs(NamesState namesState)
         {
             NamesState = namesState;

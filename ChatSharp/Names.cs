@@ -19,5 +19,16 @@ namespace ChatSharp
         /// IRC server's 366 RPL_ENDOFNAMES "&lt;channel&gt; :End of /NAMES list" reply.
         /// </summary>
         public IrcMessage Message { get; set; }
+        /// <summary>
+        /// A list of users on this network that we are aware of. Same as IrcClient.Users
+        /// </summary>
+        public UserPool Users { get; private set; }
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public NamesState(UserPool users)
+        {
+            Users = users;
+        }
     }
 }

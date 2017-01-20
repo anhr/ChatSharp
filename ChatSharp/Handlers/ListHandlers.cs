@@ -16,7 +16,7 @@ namespace ChatSharp.Handlers
             if (client.ChannelsList == null)
                 client.ChannelsList = new ChannelCollection();
             else
-                client.ChannelsList.RemoveAll();//The LIST mesage was sent to IRC server not once 
+                client.ChannelsList.RemoveAll();
             client.OnListStart(new Events.ListStartEventArgs(message));
         }
         /// <summary>

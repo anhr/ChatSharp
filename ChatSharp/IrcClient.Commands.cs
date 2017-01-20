@@ -199,8 +199,9 @@ namespace ChatSharp
             string channels = null,
             string server = null)
         {
-            var listState = new ChatSharp.ListState();
-            RequestManager.QueueOperation("LIST", new RequestOperation(listState, ro =>
+            if (this.ChannelsList == null)
+                this.ChannelsList = new ChannelCollection();
+            RequestManager.QueueOperation("LIST", new RequestOperation(new ChatSharp.ListState(this.ChannelsList), ro =>
             {
                 if (callback != null)
                     callback((ListState)ro.State);
@@ -212,14 +213,13 @@ namespace ChatSharp
         /// </summary>
         /// <param name="channels">Comma separated channels list. If  the channels  parameter  is  used, specifies which channel(s) to return information about if valid.</param>
         /// <param name="callback">Called when a IRC server's 353 RPL_NAMREPLY "&lt;channel&gt; :[[@|+]&lt;nick&gt; [[@|+]&lt;nick&gt; [...]]]" response to a NAMES message.</param>
-        /// <param name="callbackEnd">Called when a IRC server's 366 RPL_ENDOFNAMES "&lt;channel&gt; :End of /NAMES list" response to a NAMES message.</param>
         public void Names(string channels = null,
             Action<NamesState> callback = null)
         {
             if (this.ChannelsList == null)
                 this.ChannelsList = new ChannelCollection();
-            var namesState = new ChatSharp.NamesState();
-            RequestManager.QueueOperation("NAMES" + (channels == null ? "" : " " + channels), new RequestOperation(namesState, ro =>
+            RequestManager.QueueOperation("NAMES" + (channels == null ? "" : " " + channels),
+                new RequestOperation(new ChatSharp.NamesState(this.Users), ro =>
             {
                 if (callback != null)
                     callback((NamesState)ro.State);
