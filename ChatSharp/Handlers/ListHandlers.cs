@@ -13,10 +13,6 @@ namespace ChatSharp.Handlers
         /// </summary>
         public static void HandleListStart(IrcClient client, IrcMessage message)
         {
-            if (client.ChannelsList == null)
-                client.ChannelsList = new ChannelCollection();
-            else
-                client.ChannelsList.RemoveAll();
             client.OnListStart(new Events.ListStartEventArgs(message));
         }
         /// <summary>
@@ -29,9 +25,9 @@ namespace ChatSharp.Handlers
                 var request = client.RequestManager.PeekOperation("LIST");
                 ListState listState = (ListState)request.State;
                 listState.Channel = new IrcChannel(client, message);
-                if (client.ChannelsList.Contains(listState.Channel))
+                if (client.Channels.Contains(listState.Channel))
                     return;
-                client.ChannelsList.Add(listState.Channel);
+                client.Channels.Add(listState.Channel);
                 client.OnListPartRecieved(new Events.ListEventArgs(listState));
             }
             catch (InvalidOperationException e)

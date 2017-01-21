@@ -108,10 +108,6 @@ namespace ChatSharp
         /// </summary>
         public ChannelCollection Channels { get; private set; }
         /// <summary>
-        /// Collection of all channels as reply of the LIST message. See https://tools.ietf.org/html/rfc1459#section-4.2.6
-        /// </summary>
-        public ChannelCollection ChannelsList { get; set; }
-        /// <summary>
         /// Settings that control the behavior of ChatSharp.
         /// </summary>
         public ClientSettings Settings { get; set; }
@@ -580,9 +576,6 @@ namespace ChatSharp
         public event EventHandler<Events.ListStartEventArgs> ListStart;
         internal void OnListStart(Events.ListStartEventArgs e)
         {
-            if (this.ChannelsList == null)
-                this.ChannelsList = new ChannelCollection();
-            else this.ChannelsList.RemoveAll();
             if (ListStart != null) ListStart(this, e);
         }
         /// <summary>

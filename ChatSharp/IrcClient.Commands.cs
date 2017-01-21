@@ -75,7 +75,7 @@ namespace ChatSharp
         /// </summary>
         public void JoinChannel(string channel)
         {
-            if (Channels.Contains(channel))
+            if (Channels.Contains(channel, this.User.Nick))
                 throw new InvalidOperationException("Client is not already present in channel.");
             SendRawMessage("JOIN {0}", channel);
         }
@@ -199,9 +199,7 @@ namespace ChatSharp
             string channels = null,
             string server = null)
         {
-            if (this.ChannelsList == null)
-                this.ChannelsList = new ChannelCollection();
-            RequestManager.QueueOperation("LIST", new RequestOperation(new ChatSharp.ListState(this.ChannelsList), ro =>
+            RequestManager.QueueOperation("LIST", new RequestOperation(new ChatSharp.ListState(this.Channels), ro =>
             {
                 if (callback != null)
                     callback((ListState)ro.State);
@@ -216,8 +214,6 @@ namespace ChatSharp
         public void Names(string channels = null,
             Action<NamesState> callback = null)
         {
-            if (this.ChannelsList == null)
-                this.ChannelsList = new ChannelCollection();
             RequestManager.QueueOperation("NAMES" + (channels == null ? "" : " " + channels),
                 new RequestOperation(new ChatSharp.NamesState(this.Users), ro =>
             {

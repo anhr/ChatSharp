@@ -68,35 +68,25 @@ namespace ChatSharp.Handlers
             client.OnListUserPartRecieved(new Events.UserListEventArgs(namesState));
         }
 
-        private static void UserListPart(IrcClient client, IrcChannel channel, IrcMessage message, string[] users)
-        {
-            if (channel == null)
-                return;
-            foreach (var nick in users)
-            {
-                if (string.IsNullOrWhiteSpace(nick))
-                    continue;
-                var mode = client.ServerInfo.GetModeForPrefix(nick[0]);
-                if (mode == null)
-                    GetOrAddUser(client, channel, message, nick, null);
-                else
-                    GetOrAddUser(client, channel, message, nick.Substring(1), mode.Value);
-            }
-        }
-
         public static void HandleUserListPart(IrcClient client, IrcMessage message)
         {
             var users = message.Parameters[3].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             string channelName = message.Parameters[2];
             var channel = client.Channels.GetChannel(channelName);
             if (channel != null)
-                UserListPart(client, channel, message, users);//Add new user into channel where user has joined to.
-            if (client.ChannelsList != null)
             {
-                channel = client.ChannelsList.GetChannel(channelName);
                 if (channel == null)
-                    client.ChannelsList.Add(new IrcChannel(client, channelName));
-                UserListPart(client, client.ChannelsList[channelName], message, users);//Add new user into channel from collection of all channels as reply of the LIST message.
+                    return;
+                foreach (var nick in users)
+                {
+                    if (string.IsNullOrWhiteSpace(nick))
+                        continue;
+                    var mode = client.ServerInfo.GetModeForPrefix(nick[0]);
+                    if (mode == null)
+                        GetOrAddUser(client, channel, message, nick, null);
+                    else
+                        GetOrAddUser(client, channel, message, nick.Substring(1), mode.Value);
+                }
             }
         }
 

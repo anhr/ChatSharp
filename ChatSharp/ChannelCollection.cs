@@ -39,10 +39,6 @@ namespace ChatSharp
         {
             Channels.Remove(channel);
         }
-        internal void RemoveAll()
-        {
-            Channels.RemoveAll(item => true);
-        }
         /// <summary>
         /// Join the specified channel. Only applicable for your own user.
         /// </summary>
@@ -60,6 +56,19 @@ namespace ChatSharp
         public bool Contains(string name)
         {
             return Channels.Any(c => c.Name == name);
+        }
+
+        /// <summary>
+        /// Returns true if the channel by the given name exists, and user with the given nick has joined.
+        /// </summary>
+        internal bool Contains(string name, string nick)
+        {
+            return Channels.Any(c =>
+            {
+                if (c.Name != name)
+                    return false;
+                return c.Users.Any(u => u.Nick == nick);
+            });
         }
 
         /// <summary>
