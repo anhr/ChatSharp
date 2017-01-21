@@ -104,7 +104,7 @@ namespace ChatSharp
         /// <value>The user.</value>
         public IrcUser User { get; set; }
         /// <summary>
-        /// The channels this user is joined to.
+        /// The global channel collection of all channels we know about.
         /// </summary>
         public ChannelCollection Channels { get; private set; }
         /// <summary>
