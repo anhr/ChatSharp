@@ -206,13 +206,23 @@ namespace ChatSharp
                 SendRawMessage("QUIT");
             else
                 SendRawMessage("QUIT :{0}", reason);
+            PingTimer.Dispose();
+        }
+
+        /// <summary>
+        /// Socket disconnect
+        /// </summary>
+        internal void Disconnect(IrcMessage message = null)
+        {
+            if (NetworkStream == null)
+                return;
             Socket.BeginDisconnect(false, ar =>
             {
                 Socket.EndDisconnect(ar);
                 NetworkStream.Dispose();
                 NetworkStream = null;
+                OnDisconnected(new Events.ErrorReplyEventArgs(message));
             }, null);
-            PingTimer.Dispose();
         }
 
         private void ConnectComplete(IAsyncResult result)
@@ -384,6 +394,14 @@ namespace ChatSharp
         internal void OnErrorReply(Events.ErrorReplyEventArgs e)
         {
             if (ErrorReply != null) ErrorReply(this, e);
+        }
+        /// <summary>
+        /// Socket disconnected.
+        /// </summary>
+        public event EventHandler<Events.ErrorReplyEventArgs> Disconnected;
+        internal void OnDisconnected(Events.ErrorReplyEventArgs e)
+        {
+            if (Disconnected != null) Disconnected(this, e);
         }
         /// <summary>
         /// Raised for errors.

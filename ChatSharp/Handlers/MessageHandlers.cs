@@ -16,6 +16,7 @@ namespace ChatSharp.Handlers
             //client.SetHandler("324", HandleMode);
             client.SetHandler("NICK", HandleNick);
             client.SetHandler("QUIT", HandleQuit);
+            client.SetHandler("ERROR", ErrorHandlers.HandleFatalError);
             client.SetHandler("431", HandleErronousNick);
             client.SetHandler("432", HandleErronousNick);
             client.SetHandler("433", HandleErronousNick);
@@ -109,6 +110,8 @@ namespace ChatSharp.Handlers
                 client.Users.Remove(user);
                 client.OnUserQuit(new UserEventArgs(user));
             }
+            else
+                client.Disconnect();
         }
 
         public static void HandlePing(IrcClient client, IrcMessage message)

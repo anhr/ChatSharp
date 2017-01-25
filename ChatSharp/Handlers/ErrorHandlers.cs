@@ -12,5 +12,12 @@ namespace ChatSharp.Handlers
         {
             client.OnErrorReply(new Events.ErrorReplyEventArgs(message));
         }
+        /// <summary>
+        /// IRC fatal error handler.
+        /// </summary>
+        public static void HandleFatalError(IrcClient client, IrcMessage message)
+        {
+            client.Disconnect(message);
+        }
     }
 }
