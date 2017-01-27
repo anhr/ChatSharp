@@ -271,6 +271,27 @@ namespace ChatSharp
             try
             {
                 length = NetworkStream.EndRead(result) + ReadBufferIndex;
+                ReadBufferIndex = 0;
+                while (length > 0)
+                {
+                    int messageLength = Array.IndexOf(ReadBuffer, (byte)'\n', 0, length);
+                    if (messageLength == -1) // Incomplete message
+                    {
+                        ReadBufferIndex = length;
+                        break;
+                    }
+                    messageLength++;
+                    var message = Encoding.GetString(ReadBuffer, 0, messageLength - 2); // -2 to remove \r\n
+                    HandleMessage(message);
+                    Array.Copy(ReadBuffer, messageLength, ReadBuffer, 0, length - messageLength);
+                    length -= messageLength;
+                }
+                if (NetworkStream == null)
+                {
+                    OnNetworkError(new SocketErrorEventArgs(SocketError.NotConnected));
+                    return;
+                }
+                NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length - ReadBufferIndex, DataRecieved, null);
             }
             catch (IOException e)
             {
@@ -281,28 +302,6 @@ namespace ChatSharp
                     throw;
                 return;
             }
-
-            ReadBufferIndex = 0;
-            while (length > 0)
-            {
-                int messageLength = Array.IndexOf(ReadBuffer, (byte)'\n', 0, length);
-                if (messageLength == -1) // Incomplete message
-                {
-                    ReadBufferIndex = length;
-                    break;
-                }
-                messageLength++;
-                var message = Encoding.GetString(ReadBuffer, 0, messageLength - 2); // -2 to remove \r\n
-                HandleMessage(message);
-                Array.Copy(ReadBuffer, messageLength, ReadBuffer, 0, length - messageLength);
-                length -= messageLength;
-            }
-            if (NetworkStream == null)
-            {
-                OnNetworkError(new SocketErrorEventArgs(SocketError.NotConnected));
-                return;
-            }
-            NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length - ReadBufferIndex, DataRecieved, null);
         }
 
         private void HandleMessage(string rawMessage)
