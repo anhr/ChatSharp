@@ -216,12 +216,12 @@ namespace ChatSharp
         {
             if (NetworkStream == null)
                 return;
+            OnDisconnected(new Events.ErrorReplyEventArgs(message));
             Socket.BeginDisconnect(false, ar =>
             {
                 Socket.EndDisconnect(ar);
                 NetworkStream.Dispose();
                 NetworkStream = null;
-                OnDisconnected(new Events.ErrorReplyEventArgs(message));
             }, null);
         }
 
