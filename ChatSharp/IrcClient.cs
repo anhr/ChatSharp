@@ -166,8 +166,21 @@ namespace ChatSharp
             PingTimer = new Timer(30000);
             PingTimer.Elapsed += (sender, e) => 
             {
-                if (!string.IsNullOrEmpty(ServerNameFromPing))
-                    SendRawMessage("PING :{0}", ServerNameFromPing);
+                try {
+                    if (!string.IsNullOrEmpty(ServerNameFromPing))
+                        SendRawMessage("PING :{0}", ServerNameFromPing);
+                    else
+                        SendRawMessage("");//Socket connection test. 
+                }
+                catch (System.IO.IOException exception)
+                {
+                    var socketException = exception.InnerException as SocketException;
+                    if (socketException != null)
+                        OnNetworkError(new SocketErrorEventArgs(socketException.SocketErrorCode));
+                    else
+                        throw;
+                    this.Disconnect();
+                }
             };
             var checkQueue = new Timer(1000);
             checkQueue.Elapsed += (sender, e) =>
@@ -206,7 +219,6 @@ namespace ChatSharp
                 SendRawMessage("QUIT");
             else
                 SendRawMessage("QUIT :{0}", reason);
-            PingTimer.Dispose();
         }
 
         /// <summary>
@@ -223,6 +235,7 @@ namespace ChatSharp
                 NetworkStream.Dispose();
                 NetworkStream = null;
             }, null);
+            PingTimer.Dispose();
         }
 
         private void ConnectComplete(IAsyncResult result)
