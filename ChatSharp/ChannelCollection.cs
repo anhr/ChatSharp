@@ -85,19 +85,11 @@ namespace ChatSharp
         /// <summary>
         /// Gets the channel by the given channel name, including channel prefix (i.e. '#')
         /// </summary>
-        public IrcChannel GetChannel(string name)
-        {
-            return Channels.FirstOrDefault(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase));
-        }
-
-        /// <summary>
-        /// Gets the channel by the given channel name, including channel prefix (i.e. '#')
-        /// </summary>
         public IrcChannel this[string name]
         {
             get
             {
-                var channel = GetChannel(name);
+                var channel = Channels.FirstOrDefault(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase));
                 if (channel == null)
                     throw new KeyNotFoundException();
                 return channel;

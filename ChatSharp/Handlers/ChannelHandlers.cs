@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ChatSharp.Handlers
 {
@@ -70,31 +71,34 @@ namespace ChatSharp.Handlers
 
         public static void HandleUserListPart(IrcClient client, IrcMessage message)
         {
-            var users = message.Parameters[3].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            string channelName = message.Parameters[2];
-            var channel = client.Channels.GetChannel(channelName);
-            if (channel != null)
+            IrcChannel channel;
+            try
             {
-                if (channel == null)
-                    return;
-                foreach (var nick in users)
-                {
-                    if (string.IsNullOrWhiteSpace(nick))
-                        continue;
-                    var mode = client.ServerInfo.GetModeForPrefix(nick[0]);
-                    if (mode == null)
-                        GetOrAddUser(client, channel, message, nick, null);
-                    else
-                        GetOrAddUser(client, channel, message, nick.Substring(1), mode.Value);
-                }
+                channel = client.Channels[message.Parameters[2]];
+            }
+            catch(KeyNotFoundException)
+            {
+                return;
+            }
+            var users = message.Parameters[3].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var nick in users)
+            {
+                if (string.IsNullOrWhiteSpace(nick))
+                    continue;
+                var mode = client.ServerInfo.GetModeForPrefix(nick[0]);
+                if (mode == null)
+                    GetOrAddUser(client, channel, message, nick, null);
+                else
+                    GetOrAddUser(client, channel, message, nick.Substring(1), mode.Value);
             }
         }
 
         public static void HandleUserListEnd(IrcClient client, IrcMessage message)
         {
-            var channel = client.Channels.GetChannel(message.Parameters[1]);
-            if (channel != null)
+            IrcChannel channel = null;
+            try
             {
+                channel = client.Channels[message.Parameters[1]];
                 client.OnChannelListRecieved(new ChannelEventArgs(channel));
                 if (client.Settings.ModeOnJoin)
                 {
@@ -108,6 +112,9 @@ namespace ChatSharp.Handlers
                 {
                     Task.Factory.StartNew(() => WhoIsChannel(channel, client, 0));
                 }
+            }
+            catch (KeyNotFoundException)
+            {
             }
             var request = client.RequestManager.DequeueOperation("NAMES" + (message.Parameters[1] == "*" ? "" : " " + message.Parameters[1]));
             if (request == null)
