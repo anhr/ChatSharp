@@ -313,7 +313,10 @@ namespace ChatSharp
                     OnNetworkError(new SocketErrorEventArgs(socketException.SocketErrorCode));
                 else
                     throw;
-                return;
+            }
+            catch (Exception e)
+            {
+                OnError(new Events.ErrorEventArgs(e));
             }
         }
 
