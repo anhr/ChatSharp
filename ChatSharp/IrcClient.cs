@@ -232,6 +232,8 @@ namespace ChatSharp
             Socket.BeginDisconnect(false, ar =>
             {
                 Socket.EndDisconnect(ar);
+                if (NetworkStream == null)
+                    return;
                 NetworkStream.Dispose();
                 NetworkStream = null;
             }, null);
