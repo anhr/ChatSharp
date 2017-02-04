@@ -14,7 +14,7 @@ namespace ChatSharp
     /// <summary>
     /// An IRC client.
     /// </summary>
-    public sealed partial class IrcClient
+    public partial class IrcClient
     {
         /// <summary>
         /// A raw IRC message handler.
