@@ -228,10 +228,10 @@ namespace ChatSharp
         {
             if (NetworkStream == null)
                 return;
-            OnDisconnected(new Events.ErrorReplyEventArgs(message));
             Socket.BeginDisconnect(false, ar =>
             {
                 Socket.EndDisconnect(ar);
+                OnDisconnected(new Events.ErrorReplyEventArgs(message));
                 if (NetworkStream == null)
                     return;
                 NetworkStream.Dispose();
