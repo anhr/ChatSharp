@@ -108,7 +108,7 @@ namespace ChatSharp.Handlers
             var user = new IrcUser(message.Prefix);
             if (client.User.Nick != user.Nick)
             {
-                client.Users.Remove(user);
+                client.Users.Remove(user.Nick);
                 client.OnUserQuit(new UserEventArgs(user));
             }
             else
