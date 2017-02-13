@@ -46,6 +46,11 @@ namespace ChatSharp.Handlers
                 user.Channels.Remove(channel);
             client.OnUserPartedChannel(new ChannelUserEventArgs(client.Channels[message.Parameters[0]],
                 new IrcUser(message.Prefix)));
+            foreach(var u in client.Users)
+            {
+                if (u.Channels.Contains(channel))
+                    return;
+            }
             client.Channels.Remove(channel);
         }
 
