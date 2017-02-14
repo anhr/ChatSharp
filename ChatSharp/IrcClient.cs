@@ -345,7 +345,14 @@ namespace ChatSharp
                 return;
             }
 
-            message = string.Format(message, format);
+            try
+            {
+                message = string.Format(message, format);
+            }
+            catch (System.FormatException exception)
+            {
+                this.OnError(new Events.ErrorEventArgs(exception));
+            }
             var data = Encoding.GetBytes(message + "\r\n");
 
             if (!IsWriting)
