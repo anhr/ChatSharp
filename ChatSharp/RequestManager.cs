@@ -16,7 +16,7 @@ namespace ChatSharp
         public void QueueOperation(string key, RequestOperation operation)
         {
             if (PendingOperations.ContainsKey(key))
-                throw new InvalidOperationException("Operation is already pending.");
+                throw new InvalidOperationException("Operation is already pending. key: \"" + key + "\"");
             PendingOperations.Add(key, operation);
         }
 
