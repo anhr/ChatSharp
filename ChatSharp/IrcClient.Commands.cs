@@ -139,8 +139,10 @@ namespace ChatSharp
             var whois = new WhoIs();
             RequestManager.QueueOperation("WHOIS " + nick, new RequestOperation(whois, ro =>
                 {
+                    WhoIs whoIs = (WhoIs)ro.State;
+                    whoIs.User.WhoIs = whoIs;
                     if (callback != null)
-                        callback((WhoIs)ro.State);
+                        callback(whoIs);
                 }));
             SendRawMessage("WHOIS {0}", nick);
         }

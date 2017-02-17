@@ -112,6 +112,12 @@ namespace ChatSharp
         }
 
         /// <summary>
+        /// The results of an IRC WHOIS query. Depending on the capabilities of the server you're connected to,
+        /// some of these fields may be null.
+        /// </summary>
+        public WhoIs WhoIs { get; internal set; }
+
+        /// <summary>
         /// Returns true if the user matches the given mask. Can be used to check if a ban applies
         /// to this user, for example.
         /// </summary>
