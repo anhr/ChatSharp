@@ -348,21 +348,29 @@ namespace ChatSharp
             try
             {
                 message = string.Format(message, format);
+                var data = Encoding.GetBytes(message + "\r\n");
+
+                if (!IsWriting)
+                {
+                    IsWriting = true;
+                    NetworkStream.BeginWrite(data, 0, data.Length, MessageSent, message);
+                }
+                else
+                {
+                    WriteQueue.Enqueue(message);
+                }
             }
             catch (System.FormatException exception)
             {
                 this.OnError(new Events.ErrorEventArgs(exception));
             }
-            var data = Encoding.GetBytes(message + "\r\n");
-
-            if (!IsWriting)
+            catch (System.IO.IOException exception)
             {
-                IsWriting = true;
-                NetworkStream.BeginWrite(data, 0, data.Length, MessageSent, message);
-            }
-            else
-            {
-                WriteQueue.Enqueue(message);
+                var socketException = exception.InnerException as SocketException;
+                if (socketException != null)
+                    OnNetworkError(new SocketErrorEventArgs(socketException.SocketErrorCode));
+                else
+                    throw;
             }
         }
 
