@@ -55,7 +55,7 @@ namespace ChatSharp
         /// </summary>
         public bool Contains(string name)
         {
-            return Channels.Any(c => c.Name == name);
+            return Channels.Any(c => c.Name.ToLower() == name.ToLower());
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace ChatSharp
         {
             return Channels.Any(c =>
             {
-                if (c.Name != name)
+                if (c.Name.ToLower() != name.ToLower())
                     return false;
                 return c.Users.Any(u => u.Nick == nick);
             });
