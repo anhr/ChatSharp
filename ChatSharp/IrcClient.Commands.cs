@@ -136,15 +136,22 @@ namespace ChatSharp
         /// </summary>
         public void WhoIs(string nick, Action<WhoIs> callback)
         {
-            var whois = new WhoIs();
-            RequestManager.QueueOperation("WHOIS " + nick, new RequestOperation(whois, ro =>
-                {
-                    WhoIs whoIs = (WhoIs)ro.State;
-                    whoIs.User.WhoIs = whoIs;
-                    if (callback != null)
-                        callback(whoIs);
-                }));
-            SendRawMessage("WHOIS {0}", nick);
+            this.WhoIs(this.Users[nick], callback);
+        }
+
+        /// <summary>
+        /// Sends a WHOIS query asking for information on the given user, and a callback
+        /// to run when we have received the response.
+        /// </summary>
+        {
+            user.WhoIs = new WhoIs();
+            RequestManager.QueueOperation("WHOIS " + user.Nick, new RequestOperation(user.WhoIs, ro =>
+            {
+                WhoIs whoIs = (WhoIs)ro.State;
+                if (callback != null)
+                    callback(whoIs);
+            }));
+            SendRawMessage("WHOIS {0}", user.Nick);
         }
 
         /// <summary>
