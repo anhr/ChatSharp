@@ -25,34 +25,52 @@ namespace ChatSharp.Handlers
             }
         }
 
+        private static WhoIs PeekWhoIsOperation(IrcClient client, IrcMessage message)
+        {
+            RequestOperation requestOperation = client.RequestManager.PeekOperation("WHOIS " + message.Parameters[1]);
+            if (requestOperation == null)
+                return null;
+            return (WhoIs)requestOperation.State;
+        }
+
         public static void HandleWhoIsLoggedInAs(IrcClient client, IrcMessage message)
         {
-            var whois = (WhoIs)client.RequestManager.PeekOperation("WHOIS " + message.Parameters[1]).State;
+            var whois = PeekWhoIsOperation(client, message);
+            if (whois == null)
+                return;
             whois.LoggedInAs = message.Parameters[2];
         }
 
         public static void HandleWhoIsServer(IrcClient client, IrcMessage message)
         {
-            var whois = (WhoIs)client.RequestManager.PeekOperation("WHOIS " + message.Parameters[1]).State;
+            var whois = PeekWhoIsOperation(client, message);
+            if (whois == null)
+                return;
             whois.Server = message.Parameters[2];
             whois.ServerInfo = message.Parameters[3];
         }
 
         public static void HandleWhoIsOperator(IrcClient client, IrcMessage message)
         {
-            var whois = (WhoIs)client.RequestManager.PeekOperation("WHOIS " + message.Parameters[1]).State;
+            var whois = PeekWhoIsOperation(client, message);
+            if (whois == null)
+                return;
             whois.IrcOp = true;
         }
 
         public static void HandleWhoIsIdle(IrcClient client, IrcMessage message)
         {
-            var whois = (WhoIs)client.RequestManager.PeekOperation("WHOIS " + message.Parameters[1]).State;
+            var whois = PeekWhoIsOperation(client, message);
+            if (whois == null)
+                return;
             whois.SecondsIdle = int.Parse(message.Parameters[2]);
         }
 
         public static void HandleWhoIsChannels(IrcClient client, IrcMessage message)
         {
-            var whois = (WhoIs)client.RequestManager.PeekOperation("WHOIS " + message.Parameters[1]).State;
+            var whois = PeekWhoIsOperation(client, message);
+            if (whois == null)
+                return;
             var channels = message.Parameters[2].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < channels.Length; i++)
                 if (!channels[i].StartsWith("#"))

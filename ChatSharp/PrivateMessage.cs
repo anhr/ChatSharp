@@ -9,6 +9,8 @@ namespace ChatSharp
     {
         internal PrivateMessage(IrcClient client, IrcMessage message, ServerInfo serverInfo)
         {
+            if (serverInfo.ChannelTypes == null)
+                return;
             Source = message.Parameters[0];
             Message = message.Parameters[1];
 

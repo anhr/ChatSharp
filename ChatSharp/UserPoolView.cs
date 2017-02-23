@@ -31,7 +31,10 @@ namespace ChatSharp
             }
         }
 
-        internal IrcUser this[int index]
+        /// <summary>
+        /// Gets the IrcUser with the specified index.
+        /// </summary>
+        public IrcUser this[int index]
         {
             get
             {

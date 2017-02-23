@@ -13,9 +13,10 @@ namespace ChatSharp.Handlers
             client.SetHandler("NOTICE", HandleNotice);
             client.SetHandler("PRIVMSG", HandlePrivmsg);
             client.SetHandler("MODE", HandleMode);
-            //client.SetHandler("324", HandleMode);
+            client.SetHandler("324", HandleMode);
             client.SetHandler("NICK", HandleNick);
             client.SetHandler("QUIT", HandleQuit);
+            client.SetHandler("ERROR", ErrorHandlers.HandleFatalError);
             client.SetHandler("431", HandleErronousNick);
             client.SetHandler("432", HandleErronousNick);
             client.SetHandler("433", HandleErronousNick);
@@ -67,6 +68,25 @@ namespace ChatSharp.Handlers
             client.SetHandler("405", ErrorHandlers.HandleError);//ERR_TOOMANYCHANNELS "<channel name> :You have joined too many \ channels"
             client.SetHandler("406", ErrorHandlers.HandleError);//ERR_WASNOSUCHNICK "<nickname> :There was no such nickname"
             client.SetHandler("407", ErrorHandlers.HandleError);//ERR_TOOMANYTARGETS "<target> :Duplicate recipients. No message \
+            client.SetHandler("465", ErrorHandlers.HandleError);//ERR_YOUREBANNEDCREEP ":You are banned from this server"
+            client.SetHandler("471", ErrorHandlers.HandleError);//ERR_CHANNELISFULL "<channel> :Cannot join channel (+l)"
+            client.SetHandler("472", ErrorHandlers.HandleError);//ERR_UNKNOWNMODE "<char> :is unknown mode char to me"
+            client.SetHandler("473", ErrorHandlers.HandleError);//ERR_INVITEONLYCHAN "<channel> :Cannot join channel (+i)"
+            client.SetHandler("474", ErrorHandlers.HandleError);//ERR_BANNEDFROMCHAN "<channel> :Cannot join channel (+b)"
+            client.SetHandler("475", ErrorHandlers.HandleError);//ERR_BADCHANNELKEY "<channel> :Cannot join channel (+k)"
+            client.SetHandler("477", ErrorHandlers.HandleError);//"<channel> :Cannot join channel (+r) - you need to be identified with services"
+            client.SetHandler("479", ErrorHandlers.HandleError);//"<channel> :Illegal channel name
+            client.SetHandler("538", ErrorHandlers.HandleError);//"<channel1> is linked to <channel2> but <channel2> is not accepting links from <channel1>." reply from irc.swiftirc.net IRC server
+
+            //Replies RPL_LISTSTART, RPL_LIST, RPL_LISTEND mark
+            //      the start, actual replies with data and end of the
+            //      server's response to a LIST command.  If there are
+            //      no channels available to return, only the start
+            //      and end reply must be sent.
+            //See https://tools.ietf.org/html/rfc1459#section-4.2.6 for details
+            client.SetHandler("321", ListHandlers.HandleListStart);//RPL_LISTSTART "Channel :Users  Name"
+            client.SetHandler("322", ListHandlers.HandleList);//RPL_LIST "<channel> <# visible> :<topic>"
+            client.SetHandler("323", ListHandlers.HandleListEnd);//RPL_LISTEND ":End of /LIST"
         }
 
         public static void HandleNick(IrcClient client, IrcMessage message)
@@ -88,9 +108,11 @@ namespace ChatSharp.Handlers
             var user = new IrcUser(message.Prefix);
             if (client.User.Nick != user.Nick)
             {
-                client.Users.Remove(user);
+                client.Users.Remove(user.Nick);
                 client.OnUserQuit(new UserEventArgs(user));
             }
+            else
+                client.Disconnect();
         }
 
         public static void HandlePing(IrcClient client, IrcMessage message)
@@ -144,74 +166,71 @@ namespace ChatSharp.Handlers
             if (target.StartsWith("#"))
             {
                 var channel = client.Channels[target];
-                try
+                foreach (char c in mode)
                 {
-                    foreach (char c in mode)
+                    if (c == '+')
                     {
-                        if (c == '+')
+                        add = true;
+                        continue;
+                    }
+                    if (c == '-')
+                    {
+                        add = false;
+                        continue;
+                    }
+                    if (channel.Mode == null)
+                        channel.Mode = string.Empty;
+                    // TODO: Support the ones here that aren't done properly
+                    if (client.ServerInfo.SupportedChannelModes.ParameterizedSettings.Contains(c))
+                    {
+                        client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix), 
+                            (add ? "+" : "-") + c + " " + message.Parameters[i++]));
+                    }
+                    else if (client.ServerInfo.SupportedChannelModes.ChannelLists.Contains(c))
+                    {
+                        client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix), 
+                            (add ? "+" : "-") + c + " " + message.Parameters[i++]));
+                    }
+                    else if (client.ServerInfo.SupportedChannelModes.ChannelUserModes.Contains(c))
+                    {
+                        if (channel.UsersByMode == null)
+                            channel.UsersByMode = new System.Collections.Generic.Dictionary<char?, UserPoolView>();
+                        if (!channel.UsersByMode.ContainsKey(c))
                         {
-                            add = true;
-                            continue;
+                            channel.UsersByMode.Add(c,
+                                new UserPoolView(channel.Users.Where(u =>
+                                {
+                                    if (!u.ChannelModes.ContainsKey(channel))
+                                        u.ChannelModes.Add(channel, null);
+                                    return u.ChannelModes[channel] == c;
+                                })));
                         }
-                        if (c == '-')
+                        var user = new IrcUser(message.Parameters[0]);
+                        if (add)
                         {
-                            add = false;
-                            continue;
+                            if (!channel.UsersByMode[c].Contains(user.Nick))
+                                user.ChannelModes[channel] = c;
                         }
-                        if (channel.Mode == null)
-                            channel.Mode = string.Empty;
-                        // TODO: Support the ones here that aren't done properly
-                        if (client.ServerInfo.SupportedChannelModes.ParameterizedSettings.Contains(c))
+                        else
                         {
-                            client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix), 
-                                (add ? "+" : "-") + c + " " + message.Parameters[i++]));
+                            if (channel.UsersByMode[c].Contains(user.Nick))
+                                user.ChannelModes[channel] = null;
                         }
-                        else if (client.ServerInfo.SupportedChannelModes.ChannelLists.Contains(c))
+                        client.OnModeChanged(new ModeChangeEventArgs(channel.Name, user, (add ? "+" : "-") + c));
+                    }
+                    if (client.ServerInfo.SupportedChannelModes.Settings.Contains(c))
+                    {
+                        if (add)
                         {
-                            client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix), 
-                                (add ? "+" : "-") + c + " " + message.Parameters[i++]));
+                            if (!channel.Mode.Contains(c))
+                                channel.Mode += c.ToString();
                         }
-                        else if (client.ServerInfo.SupportedChannelModes.ChannelUserModes.Contains(c))
-                        {
-                            if (!channel.UsersByMode.ContainsKey(c))
-                            {
-                                channel.UsersByMode.Add(c,
-                                    new UserPoolView(channel.Users.Where(u =>
-                                    {
-                                        if (!u.ChannelModes.ContainsKey(channel))
-                                            u.ChannelModes.Add(channel, null);
-                                        return u.ChannelModes[channel] == c;
-                                    })));
-                            }
-                            var user = new IrcUser(message.Parameters[i]);
-                            if (add)
-                            {
-                                if (!channel.UsersByMode[c].Contains(user.Nick))
-                                    user.ChannelModes[channel] = c;
-                            }
-                            else
-                            {
-                                if (channel.UsersByMode[c].Contains(user.Nick))
-                                    user.ChannelModes[channel] = null;
-                            }
-                            client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix), 
-                                (add ? "+" : "-") + c + " " + message.Parameters[i++]));
-                        }
-                        if (client.ServerInfo.SupportedChannelModes.Settings.Contains(c))
-                        {
-                            if (add)
-                            {
-                                if (!channel.Mode.Contains(c))
-                                    channel.Mode += c.ToString();
-                            }
-                            else
-                                channel.Mode = channel.Mode.Replace(c.ToString(), string.Empty);
-                            client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix), 
-                                (add ? "+" : "-") + c));
-                        }
+                        else
+                            channel.Mode = channel.Mode.Replace(c.ToString(), string.Empty);
+                        client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix), 
+                            (add ? "+" : "-") + c));
                     }
                 }
-                catch { }
                 if (message.Command == "324")
                 {
                     var operation = client.RequestManager.DequeueOperation("MODE " + channel.Name);

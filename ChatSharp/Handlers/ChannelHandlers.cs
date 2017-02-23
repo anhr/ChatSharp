@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ChatSharp.Handlers
 {
@@ -45,11 +46,45 @@ namespace ChatSharp.Handlers
                 user.Channels.Remove(channel);
             client.OnUserPartedChannel(new ChannelUserEventArgs(client.Channels[message.Parameters[0]],
                 new IrcUser(message.Prefix)));
+            foreach(var u in client.Users)
+            {
+                if (u.Channels.Contains(channel))
+                    return;
+            }
+            client.Channels.Remove(channel);
+        }
+
+        private static void GetOrAddUser(IrcClient client, IrcChannel channel, IrcMessage message, string nick, char? mode)
+        {
+            var user = client.Users.GetOrAdd(nick);
+            if (!user.Channels.Contains(channel))
+                user.Channels.Add(channel);
+            if (!user.ChannelModes.ContainsKey(channel))
+                user.ChannelModes.Add(channel, mode);
+            else
+                user.ChannelModes[channel] = mode;
+            var request = client.RequestManager.PeekOperation("NAMES");
+            if (request == null)
+                request = client.RequestManager.PeekOperation("NAMES " + message.Parameters[2]);
+            if (request == null)
+                return;//IRC server sent 353 RPL_NAMREPLY reply automatically
+            NamesState namesState = ((NamesState)request.State);
+            namesState.User = user;
+            namesState.Channel = channel;
+            client.OnListUserPartRecieved(new Events.UserListEventArgs(namesState));
         }
 
         public static void HandleUserListPart(IrcClient client, IrcMessage message)
         {
-            var channel = client.Channels[message.Parameters[2]];
+            IrcChannel channel;
+            try
+            {
+                channel = client.Channels[message.Parameters[2]];
+            }
+            catch(KeyNotFoundException)
+            {
+                return;
+            }
             var users = message.Parameters[3].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var nick in users)
             {
@@ -57,44 +92,43 @@ namespace ChatSharp.Handlers
                     continue;
                 var mode = client.ServerInfo.GetModeForPrefix(nick[0]);
                 if (mode == null)
-                {
-                    var user = client.Users.GetOrAdd(nick);
-                    if (!user.Channels.Contains(channel))
-                        user.Channels.Add(channel);
-                    if (!user.ChannelModes.ContainsKey(channel))
-                        user.ChannelModes.Add(channel, null);
-                    else
-                        user.ChannelModes[channel] = null;
-                }
+                    GetOrAddUser(client, channel, message, nick, null);
                 else
-                {
-                    var user = client.Users.GetOrAdd(nick.Substring(1));
-                    if (!user.Channels.Contains(channel))
-                        user.Channels.Add(channel);
-                    if (!user.ChannelModes.ContainsKey(channel))
-                        user.ChannelModes.Add(channel, mode.Value);
-                    else
-                        user.ChannelModes[channel] = mode.Value;
-                }
+                    GetOrAddUser(client, channel, message, nick.Substring(1), mode.Value);
             }
         }
 
         public static void HandleUserListEnd(IrcClient client, IrcMessage message)
         {
-            var channel = client.Channels[message.Parameters[1]];
-            client.OnChannelListRecieved(new ChannelEventArgs(channel));
-            if (client.Settings.ModeOnJoin)
+            IrcChannel channel = null;
+            try
             {
-                try
+                channel = client.Channels[message.Parameters[1]];
+                client.OnChannelListRecieved(new ChannelEventArgs(channel));
+                if (client.Settings.ModeOnJoin)
                 {
-                    client.GetMode(channel.Name, c => { /* no-op */ });
+                    try
+                    {
+                        client.GetMode(channel.Name, c => { /* no-op */ });
+                    }
+                    catch { /* who cares */ }
                 }
-                catch { /* who cares */ }
+                if (client.Settings.WhoIsOnJoin)
+                {
+                    Task.Factory.StartNew(() => WhoIsChannel(channel, client, 0));
+                }
             }
-            if (client.Settings.WhoIsOnJoin)
+            catch (KeyNotFoundException)
             {
-                Task.Factory.StartNew(() => WhoIsChannel(channel, client, 0));
             }
+            var request = client.RequestManager.DequeueOperation("NAMES" + (message.Parameters[1] == "*" ? "" : " " + message.Parameters[1]));
+            if (request == null)
+                return;//IRC server sent 366 RPL_ENDOFNAMES reply automatically
+            NamesState namesState = (NamesState)request.State;
+            namesState.Message = message;
+            namesState.Channel = channel;
+            if (request.Callback != null)
+                request.Callback(request);
         }
 
         private static void WhoIsChannel(IrcChannel channel, IrcClient client, int index)

@@ -16,18 +16,22 @@ namespace ChatSharp
         public void QueueOperation(string key, RequestOperation operation)
         {
             if (PendingOperations.ContainsKey(key))
-                throw new InvalidOperationException("Operation is already pending.");
+                throw new InvalidOperationException("Operation is already pending. key: \"" + key + "\"");
             PendingOperations.Add(key, operation);
         }
 
         public RequestOperation PeekOperation(string key)
         {
             var realKey = PendingOperations.Keys.FirstOrDefault(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
+            if (realKey == null)
+                return null;//IRC server sent it reply automatically
             return PendingOperations[realKey];
         }
 
         public RequestOperation DequeueOperation(string key)
         {
+            if (!PendingOperations.ContainsKey(key))
+                return null;//IRC server sent it reply automatically
             var operation = PendingOperations[key];
             PendingOperations.Remove(key);
             return operation;

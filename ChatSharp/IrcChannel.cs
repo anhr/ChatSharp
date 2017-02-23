@@ -41,6 +41,10 @@ namespace ChatSharp
         /// </summary>
         public UserPoolView Users { get; private set; }
         /// <summary>
+        /// The users count in this channel. It is # visible parameter of the IRC server's reply 322 RPL_LIST "channel # visible :topic". See rfc1459#section-6.2  Command responses.
+        /// </summary>
+        public uint UsersCount { get; private set; }
+        /// <summary>
         /// Users in this channel, grouped by mode. Users with no special mode are grouped under null.
         /// </summary>
         public Dictionary<char?, UserPoolView> UsersByMode { get; set; }
@@ -50,6 +54,16 @@ namespace ChatSharp
             Client = client;
             Name = name;
             Users = new UserPoolView(client.Users.Where(u => u.Channels.Contains(this)));
+        }
+
+        /// <summary>
+        /// Create channel from IRC server's reply 322 RPL_LIST "channel # visible :topic". See rfc1459#section-6.2  Command responses.
+        /// </summary>
+        internal IrcChannel(IrcClient client, IrcMessage message)
+            : this(client, message.Parameters[1])//Channel
+        {
+            UsersCount = uint.Parse(message.Parameters[2]);//# visible
+            _Topic = message.Parameters[3];
         }
 
         /// <summary>

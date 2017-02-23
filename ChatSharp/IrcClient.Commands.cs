@@ -58,7 +58,6 @@ namespace ChatSharp
             if (!Channels.Contains(channel))
                 throw new InvalidOperationException("Client is not present in channel.");
             SendRawMessage("PART {0}", channel);
-            Channels.Remove(Channels[channel]);
         }
 
         /// <summary>
@@ -69,7 +68,6 @@ namespace ChatSharp
             if (!Channels.Contains(channel))
                 throw new InvalidOperationException("Client is not present in channel.");
             SendRawMessage("PART {0} :{1}", channel, reason);
-            Channels.Remove(Channels[channel]);
         }
 
         /// <summary>
@@ -77,7 +75,7 @@ namespace ChatSharp
         /// </summary>
         public void JoinChannel(string channel)
         {
-            if (Channels.Contains(channel))
+            if (Channels.Contains(channel, this.User.Nick))
                 throw new InvalidOperationException("Client is not already present in channel.");
             SendRawMessage("JOIN {0}", channel);
         }
@@ -141,8 +139,10 @@ namespace ChatSharp
             var whois = new WhoIs();
             RequestManager.QueueOperation("WHOIS " + nick, new RequestOperation(whois, ro =>
                 {
+                    WhoIs whoIs = (WhoIs)ro.State;
+                    whoIs.User.WhoIs = whoIs;
                     if (callback != null)
-                        callback((WhoIs)ro.State);
+                        callback(whoIs);
                 }));
             SendRawMessage("WHOIS {0}", nick);
         }
@@ -190,6 +190,39 @@ namespace ChatSharp
                         callback(c);
                 }));
             SendRawMessage("MODE {0} {1}", channel, mode);
+        }
+        /// <summary>
+        /// List message. https://tools.ietf.org/html/rfc1459#section-4.2.6
+        /// </summary>
+        /// <param name="callback">Called when a IRC server's 322 RPL_LIST &lt;channel&gt; # &lt;visible&gt; :&lt;topic&gt;" response to a LIST message.</param>
+        /// <param name="channels">Comma separated channels list. If  the channels  parameter  is  used,  only the  status of  that channel is displayed.</param>
+        /// <param name="server">server's address</param>
+        public void List(Action<ListState> callback = null,
+            string channels = null,
+            string server = null)
+        {
+            RequestManager.QueueOperation("LIST", new RequestOperation(new ChatSharp.ListState(this.Channels), ro =>
+            {
+                if (callback != null)
+                    callback((ListState)ro.State);
+            }));
+            SendRawMessage("LIST {0} {1}", channels, server);
+        }
+        /// <summary>
+        /// Names message. https://tools.ietf.org/html/rfc1459#section-4.2.5
+        /// </summary>
+        /// <param name="channels">Comma separated channels list. If  the channels  parameter  is  used, specifies which channel(s) to return information about if valid.</param>
+        /// <param name="callback">Called when a IRC server's 353 RPL_NAMREPLY "&lt;channel&gt; :[[@|+]&lt;nick&gt; [[@|+]&lt;nick&gt; [...]]]" response to a NAMES message.</param>
+        public void Names(string channels = null,
+            Action<NamesState> callback = null)
+        {
+            RequestManager.QueueOperation("NAMES" + (channels == null ? "" : " " + channels),
+                new RequestOperation(new ChatSharp.NamesState(this.Users), ro =>
+            {
+                if (callback != null)
+                    callback((NamesState)ro.State);
+            }));
+            SendRawMessage("NAMES {0}", channels);
         }
     }
 }

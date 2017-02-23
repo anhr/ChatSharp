@@ -23,9 +23,14 @@ namespace ChatSharp
         private IrcClient Client { get; set; }
         private List<IrcChannel> Channels { get; set; }
 
+        internal bool Contains(IrcChannel channel)
+        {
+            return Channels.Any(c => c.Name == channel.Name);
+        }
+
         internal void Add(IrcChannel channel)
         {
-            if (Channels.Any(c => c.Name == channel.Name))
+            if (Contains(channel))
                 throw new InvalidOperationException("That channel already exists in this collection.");
             Channels.Add(channel);
         }
@@ -34,7 +39,6 @@ namespace ChatSharp
         {
             Channels.Remove(channel);
         }
-
         /// <summary>
         /// Join the specified channel. Only applicable for your own user.
         /// </summary>
@@ -52,6 +56,19 @@ namespace ChatSharp
         public bool Contains(string name)
         {
             return Channels.Any(c => c.Name == name);
+        }
+
+        /// <summary>
+        /// Returns true if the channel by the given name exists, and user with the given nick has joined.
+        /// </summary>
+        internal bool Contains(string name, string nick)
+        {
+            return Channels.Any(c =>
+            {
+                if (c.Name != name)
+                    return false;
+                return c.Users.Any(u => u.Nick == nick);
+            });
         }
 
         /// <summary>

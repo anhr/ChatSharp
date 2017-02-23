@@ -1,6 +1,3 @@
-using ChatSharp.Events;
-using System.Linq;
-
 namespace ChatSharp.Handlers
 {
     /// <summary>
@@ -14,6 +11,13 @@ namespace ChatSharp.Handlers
         public static void HandleError(IrcClient client, IrcMessage message)
         {
             client.OnErrorReply(new Events.ErrorReplyEventArgs(message));
+        }
+        /// <summary>
+        /// IRC fatal error handler.
+        /// </summary>
+        public static void HandleFatalError(IrcClient client, IrcMessage message)
+        {
+            client.Disconnect(message);
         }
     }
 }

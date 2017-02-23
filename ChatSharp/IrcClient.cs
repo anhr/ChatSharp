@@ -14,7 +14,7 @@ namespace ChatSharp
     /// <summary>
     /// An IRC client.
     /// </summary>
-    public sealed partial class IrcClient
+    public partial class IrcClient
     {
         /// <summary>
         /// A raw IRC message handler.
@@ -104,7 +104,7 @@ namespace ChatSharp
         /// <value>The user.</value>
         public IrcUser User { get; set; }
         /// <summary>
-        /// The channels this user is joined to.
+        /// The global channel collection of all channels we know about.
         /// </summary>
         public ChannelCollection Channels { get; private set; }
         /// <summary>
@@ -166,8 +166,21 @@ namespace ChatSharp
             PingTimer = new Timer(30000);
             PingTimer.Elapsed += (sender, e) => 
             {
-                if (!string.IsNullOrEmpty(ServerNameFromPing))
-                    SendRawMessage("PING :{0}", ServerNameFromPing);
+                try {
+                    if (!string.IsNullOrEmpty(ServerNameFromPing))
+                        SendRawMessage("PING :{0}", ServerNameFromPing);
+                    else
+                        SendRawMessage("");//Socket connection test. 
+                }
+                catch (System.IO.IOException exception)
+                {
+                    var socketException = exception.InnerException as SocketException;
+                    if (socketException != null)
+                        OnNetworkError(new SocketErrorEventArgs(socketException.SocketErrorCode));
+                    else
+                        throw;
+                    this.Disconnect();
+                }
             };
             var checkQueue = new Timer(1000);
             checkQueue.Elapsed += (sender, e) =>
@@ -196,13 +209,31 @@ namespace ChatSharp
         /// </summary>
         public void Quit(string reason)
         {
+            if (NetworkStream == null)
+            {
+                //The QUIT command was called not once
+                OnNetworkError(new SocketErrorEventArgs(SocketError.NotConnected));
+                return;
+            }
             if (reason == null)
                 SendRawMessage("QUIT");
             else
                 SendRawMessage("QUIT :{0}", reason);
+        }
+
+        /// <summary>
+        /// Socket disconnect
+        /// </summary>
+        internal void Disconnect(IrcMessage message = null)
+        {
+            if (NetworkStream == null)
+                return;
             Socket.BeginDisconnect(false, ar =>
             {
                 Socket.EndDisconnect(ar);
+                OnDisconnected(new Events.ErrorReplyEventArgs(message));
+                if (NetworkStream == null)
+                    return;
                 NetworkStream.Dispose();
                 NetworkStream = null;
             }, null);
@@ -255,6 +286,27 @@ namespace ChatSharp
             try
             {
                 length = NetworkStream.EndRead(result) + ReadBufferIndex;
+                ReadBufferIndex = 0;
+                while (length > 0)
+                {
+                    int messageLength = Array.IndexOf(ReadBuffer, (byte)'\n', 0, length);
+                    if (messageLength == -1) // Incomplete message
+                    {
+                        ReadBufferIndex = length;
+                        break;
+                    }
+                    messageLength++;
+                    var message = Encoding.GetString(ReadBuffer, 0, messageLength - 2); // -2 to remove \r\n
+                    HandleMessage(message);
+                    Array.Copy(ReadBuffer, messageLength, ReadBuffer, 0, length - messageLength);
+                    length -= messageLength;
+                }
+                if (NetworkStream == null)
+                {
+                    OnNetworkError(new SocketErrorEventArgs(SocketError.NotConnected));
+                    return;
+                }
+                NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length - ReadBufferIndex, DataRecieved, null);
             }
             catch (IOException e)
             {
@@ -263,25 +315,11 @@ namespace ChatSharp
                     OnNetworkError(new SocketErrorEventArgs(socketException.SocketErrorCode));
                 else
                     throw;
-                return;
             }
-
-            ReadBufferIndex = 0;
-            while (length > 0)
+            catch (Exception e)
             {
-                int messageLength = Array.IndexOf(ReadBuffer, (byte)'\n', 0, length);
-                if (messageLength == -1) // Incomplete message
-                {
-                    ReadBufferIndex = length;
-                    break;
-                }
-                messageLength++;
-                var message = Encoding.GetString(ReadBuffer, 0, messageLength - 2); // -2 to remove \r\n
-                HandleMessage(message);
-                Array.Copy(ReadBuffer, messageLength, ReadBuffer, 0, length - messageLength);
-                length -= messageLength;
+                OnError(new Events.ErrorEventArgs(e));
             }
-            NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length - ReadBufferIndex, DataRecieved, null);
         }
 
         private void HandleMessage(string rawMessage)
@@ -307,7 +345,14 @@ namespace ChatSharp
                 return;
             }
 
-            message = string.Format(message, format);
+            try
+            {
+                message = string.Format(message, format);
+            }
+            catch (System.FormatException exception)
+            {
+                this.OnError(new Events.ErrorEventArgs(exception));
+            }
             var data = Encoding.GetBytes(message + "\r\n");
 
             if (!IsWriting)
@@ -373,6 +418,14 @@ namespace ChatSharp
         internal void OnErrorReply(Events.ErrorReplyEventArgs e)
         {
             if (ErrorReply != null) ErrorReply(this, e);
+        }
+        /// <summary>
+        /// Socket disconnected.
+        /// </summary>
+        public event EventHandler<Events.ErrorReplyEventArgs> Disconnected;
+        internal void OnDisconnected(Events.ErrorReplyEventArgs e)
+        {
+            if (Disconnected != null) Disconnected(this, e);
         }
         /// <summary>
         /// Raised for errors.
@@ -550,6 +603,38 @@ namespace ChatSharp
         internal void OnUserQuit(UserEventArgs e)
         {
             if (UserQuit != null) UserQuit(this, e);
+        }
+        /// <summary>
+        /// Raised for add channel errors.
+        /// </summary>
+        public event EventHandler<Events.ErrorEventArgs> ListError;
+        internal void OnListError(Events.ErrorEventArgs e)
+        {
+            if (ListError != null) ListError(this, e);
+        }
+        /// <summary>
+        /// IRC server's reply 321 RPL_LISTSTART "Channel :Users  Name". rfc1459#section-4.2.6 Command responses.
+        /// </summary>
+        public event EventHandler<Events.ListStartEventArgs> ListStart;
+        internal void OnListStart(Events.ListStartEventArgs e)
+        {
+            if (ListStart != null) ListStart(this, e);
+        }
+        /// <summary>
+        /// IRC server's reply 322 RPL_LIST "channel # visible :topic". rfc1459#section-4.2.6 Command responses.
+        /// </summary>
+        public event EventHandler<Events.ListEventArgs> ListReply;
+        internal void OnListPartRecieved(Events.ListEventArgs e)
+        {
+            if (ListReply != null) ListReply(this, e);
+        }
+        /// <summary>
+        /// IRC server's reply 353 RPL_NAMREPLY "&lt;channel&gt; :[[@|+]&lt;nick&lt; [[@|+]&lt;nick&lt; [...]]]". NAMES message reply. https://tools.ietf.org/html/rfc1459#section-4.2.5
+        /// </summary>
+        public event EventHandler<Events.UserListEventArgs> UserListReply;
+        internal void OnListUserPartRecieved(Events.UserListEventArgs e)
+        {
+            if (UserListReply != null) UserListReply(this, e);
         }
     }
 }
