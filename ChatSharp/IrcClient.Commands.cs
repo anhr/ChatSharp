@@ -143,6 +143,7 @@ namespace ChatSharp
         /// Sends a WHOIS query asking for information on the given user, and a callback
         /// to run when we have received the response.
         /// </summary>
+        public void WhoIs(ChatSharp.IrcUser user, Action<WhoIs> callback = null)
         {
             user.WhoIs = new WhoIs();
             RequestManager.QueueOperation("WHOIS " + user.Nick, new RequestOperation(user.WhoIs, ro =>
