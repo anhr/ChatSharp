@@ -43,5 +43,9 @@ namespace ChatSharp
         /// The nickserv account this user is logged into, if applicable.
         /// </summary>
         public string LoggedInAs { get; set; }
+        /// <summary>
+        /// The error of an IRC WHOIS query. For example error = "401" ERR_NOSUCHNICK "nickname :No such nick/channel"
+        /// </summary>
+        public string error { get; set; }
     }
 }
