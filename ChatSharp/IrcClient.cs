@@ -43,14 +43,9 @@ namespace ChatSharp
             return new DateTime(1970, 1, 1).AddSeconds(time);
         }
 
-        private const int ReadBufferLength = 1024;
-
-        private byte[] ReadBuffer { get; set; }
-        private int ReadBufferIndex { get; set; }
         private string ServerHostname { get; set; }
         private int ServerPort { get; set; }
         private Timer PingTimer { get; set; }
-        private Socket Socket { get; set; }
         private ConcurrentQueue<string> WriteQueue { get; set; }
         private bool IsWriting { get; set; }
 
@@ -85,6 +80,10 @@ namespace ChatSharp
         /// The low level TCP stream for this client.
         /// </summary>
         public Stream NetworkStream { get; set; }
+        /// <summary>
+        /// cancel of ChatSharp.IrcClient.NetworkStream
+        /// </summary>
+        private System.Threading.CancellationTokenSource CancelStream = new System.Threading.CancellationTokenSource();
         /// <summary>
         /// If true, SSL will be used to connect.
         /// </summary>
@@ -157,16 +156,13 @@ namespace ChatSharp
         /// <summary>
         /// Connects to the IRC server.
         /// </summary>
-        public void ConnectAsync()
+        public async void ConnectAsync()
         {
-            if (Socket != null && Socket.Connected) throw new InvalidOperationException("Socket is already connected to server.");
-            Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            ReadBuffer = new byte[ReadBufferLength];
-            ReadBufferIndex = 0;
             PingTimer = new Timer(30000);
-            PingTimer.Elapsed += (sender, e) => 
+            PingTimer.Elapsed += (sender, e) =>
             {
-                try {
+                try
+                {
                     if (!string.IsNullOrEmpty(ServerNameFromPing))
                         SendRawMessage("PING :{0}", ServerNameFromPing);
                     else
@@ -193,7 +189,56 @@ namespace ChatSharp
                 }
             };
             checkQueue.Start();
-            Socket.BeginConnect(ServerHostname, ServerPort, ConnectComplete, null);
+
+            TcpClient tcpClient = new TcpClient();
+            try
+            {
+                await tcpClient.ConnectAsync(ServerHostname, ServerPort);
+                this.NetworkStream = tcpClient.GetStream();
+                if (UseSSL)
+                {
+                    if (IgnoreInvalidSSL)
+                        NetworkStream = new SslStream(NetworkStream, false, (sender, certificate, chain, policyErrors) => true);
+                    else
+                        NetworkStream = new SslStream(NetworkStream);
+                    ((SslStream)NetworkStream).AuthenticateAsClient(ServerHostname);
+                }
+
+                // Write login info
+                if (!string.IsNullOrEmpty(User.Password))
+                    SendRawMessage("PASS {0}", User.Password);
+                SendRawMessage("NICK {0}", User.Nick);
+                // hostname, servername are ignored by most IRC servers
+                SendRawMessage("USER {0} hostname servername :{1}", User.User, User.RealName);
+                PingTimer.Start();
+
+                string tail = "";
+                byte[] buffer = new byte[1024];
+                int byteCount;
+
+                while ((byteCount = await this.NetworkStream.ReadAsync(buffer, 0, buffer.Length, this.CancelStream.Token)) > 0)
+                {
+                    string[] lines = (tail + Encoding.GetString(buffer, 0, byteCount)).Split('\n');
+                    for (int i = 0; i < lines.Length - 1; i++)
+                        HandleMessage(lines[i].Replace("\r", ""));
+                    tail = lines[lines.Length - 1];
+                }
+            }
+            catch (System.Threading.Tasks.TaskCanceledException)
+            {
+            }
+            catch (SocketException e)
+            {
+                OnNetworkError(new SocketErrorEventArgs(e.SocketErrorCode));
+            }
+            catch (Exception e)
+            {
+                OnError(new Events.ErrorEventArgs(e));
+            }
+            this.NetworkStream.Close();
+            this.NetworkStream.Dispose();
+            this.NetworkStream = null;
+            this.CancelStream.Dispose();
         }
 
         /// <summary>
@@ -226,111 +271,27 @@ namespace ChatSharp
         /// </summary>
         internal void Disconnect(IrcMessage message = null)
         {
-            if (NetworkStream == null)
-                return;
-            Socket.BeginDisconnect(false, ar =>
-            {
-                Socket.EndDisconnect(ar);
-                OnDisconnected(new Events.ErrorReplyEventArgs(message));
-                if (NetworkStream == null)
-                    return;
-                NetworkStream.Dispose();
-                NetworkStream = null;
-            }, null);
             PingTimer.Dispose();
-        }
-
-        private void ConnectComplete(IAsyncResult result)
-        {
-            try
-            {
-                Socket.EndConnect(result);
-                NetworkStream = new NetworkStream(Socket);
-                if (UseSSL)
-                {
-                    if (IgnoreInvalidSSL)
-                        NetworkStream = new SslStream(NetworkStream, false, (sender, certificate, chain, policyErrors) => true);
-                    else
-                        NetworkStream = new SslStream(NetworkStream);
-                    ((SslStream)NetworkStream).AuthenticateAsClient(ServerHostname);
-                }
-
-                NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length, DataRecieved, null);
-                // Write login info
-                if (!string.IsNullOrEmpty(User.Password))
-                    SendRawMessage("PASS {0}", User.Password);
-                SendRawMessage("NICK {0}", User.Nick);
-                // hostname, servername are ignored by most IRC servers
-                SendRawMessage("USER {0} hostname servername :{1}", User.User, User.RealName);
-                PingTimer.Start();
-            }
-            catch (SocketException e)
-            {
-                OnNetworkError(new SocketErrorEventArgs(e.SocketErrorCode));
-            }
-            catch (Exception e)
-            {
-                OnError(new Events.ErrorEventArgs(e));
-            }
-        }
-
-        private void DataRecieved(IAsyncResult result)
-        {
-            if (NetworkStream == null)
-            {
-                OnNetworkError(new SocketErrorEventArgs(SocketError.NotConnected));
-                return;
-            }
-
-            int length;
-            try
-            {
-                length = NetworkStream.EndRead(result) + ReadBufferIndex;
-                ReadBufferIndex = 0;
-                while (length > 0)
-                {
-                    int messageLength = Array.IndexOf(ReadBuffer, (byte)'\n', 0, length);
-                    if (messageLength == -1) // Incomplete message
-                    {
-                        ReadBufferIndex = length;
-                        break;
-                    }
-                    messageLength++;
-                    var message = Encoding.GetString(ReadBuffer, 0, messageLength - 2); // -2 to remove \r\n
-                    HandleMessage(message);
-                    Array.Copy(ReadBuffer, messageLength, ReadBuffer, 0, length - messageLength);
-                    length -= messageLength;
-                }
-                if (NetworkStream == null)
-                {
-                    OnNetworkError(new SocketErrorEventArgs(SocketError.NotConnected));
-                    return;
-                }
-                NetworkStream.BeginRead(ReadBuffer, ReadBufferIndex, ReadBuffer.Length - ReadBufferIndex, DataRecieved, null);
-            }
-            catch (IOException e)
-            {
-                var socketException = e.InnerException as SocketException;
-                if (socketException != null)
-                    OnNetworkError(new SocketErrorEventArgs(socketException.SocketErrorCode));
-                else
-                    throw;
-            }
-            catch (Exception e)
-            {
-                OnError(new Events.ErrorEventArgs(e));
-            }
+            this.CancelStream.Cancel();
+            OnDisconnected(new Events.ErrorReplyEventArgs(message));
         }
 
         private void HandleMessage(string rawMessage)
         {
             OnRawMessageRecieved(new RawMessageEventArgs(rawMessage, false));
-            var message = new IrcMessage(rawMessage);
-            if (Handlers.ContainsKey(message.Command.ToUpper()))
-                Handlers[message.Command.ToUpper()](this, message);
-            else
+            try
             {
-                // TODO: Fire an event or something
+                var message = new IrcMessage(rawMessage);
+                if (Handlers.ContainsKey(message.Command.ToUpper()))
+                    Handlers[message.Command.ToUpper()](this, message);
+                else
+                {
+                    // TODO: Fire an event or something
+                }
+            }
+            catch (Exception e)
+            {
+                this.OnMessageError(new Events.ErrorEventArgs(e));
             }
         }
 
@@ -434,6 +395,14 @@ namespace ChatSharp
         internal void OnError(Events.ErrorEventArgs e)
         {
             if (Error != null) Error(this, e);
+        }
+        /// <summary>
+        /// Raised for message errors.
+        /// </summary>
+        public event EventHandler<Events.ErrorEventArgs> MessageError;
+        internal void OnMessageError(Events.ErrorEventArgs e)
+        {
+            if (MessageError != null) MessageError(this, e);
         }
         /// <summary>
         /// Raised for socket errors. ChatSharp does not automatically reconnect.
