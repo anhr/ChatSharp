@@ -85,6 +85,10 @@ namespace ChatSharp
         /// </summary>
         private System.Threading.CancellationTokenSource CancelStream = new System.Threading.CancellationTokenSource();
         /// <summary>
+        /// Message of socket disconnect
+        /// </summary>
+        private IrcMessage Message;
+        /// <summary>
         /// If true, SSL will be used to connect.
         /// </summary>
         public bool UseSSL { get; private set; }
@@ -161,6 +165,11 @@ namespace ChatSharp
             PingTimer = new Timer(30000);
             PingTimer.Elapsed += (sender, e) =>
             {
+                if (NetworkStream == null)
+                {
+                    this.Disconnect();
+                    return;
+                }
                 try
                 {
                     if (!string.IsNullOrEmpty(ServerNameFromPing))
@@ -235,10 +244,16 @@ namespace ChatSharp
             {
                 OnError(new Events.ErrorEventArgs(e));
             }
-            this.NetworkStream.Close();
-            this.NetworkStream.Dispose();
-            this.NetworkStream = null;
+            PingTimer.Dispose();
+            if (this.NetworkStream != null)
+            {
+                this.NetworkStream.Close();
+                this.NetworkStream.Dispose();
+                this.NetworkStream = null;
+            }
+            tcpClient.Close();
             this.CancelStream.Dispose();
+            OnDisconnected(new Events.ErrorReplyEventArgs(this.Message));
         }
 
         /// <summary>
@@ -271,9 +286,8 @@ namespace ChatSharp
         /// </summary>
         internal void Disconnect(IrcMessage message = null)
         {
-            PingTimer.Dispose();
             this.CancelStream.Cancel();
-            OnDisconnected(new Events.ErrorReplyEventArgs(message));
+            this.Message = message;
         }
 
         private void HandleMessage(string rawMessage)
