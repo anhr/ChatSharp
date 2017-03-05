@@ -202,7 +202,13 @@ namespace ChatSharp
             TcpClient tcpClient = new TcpClient();
             try
             {
-                await tcpClient.ConnectAsync(ServerHostname, ServerPort);
+                var tsk = tcpClient.ConnectAsync(ServerHostname, ServerPort);
+                tsk.Wait(10000);
+                if (!tsk.IsCompleted)
+                {
+                    OnNetworkError(new SocketErrorEventArgs(SocketError.TimedOut));
+                    return;
+                }
                 this.NetworkStream = tcpClient.GetStream();
                 if (UseSSL)
                 {
