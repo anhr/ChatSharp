@@ -223,8 +223,9 @@ namespace ChatSharp
                 if (!string.IsNullOrEmpty(User.Password))
                     SendRawMessage("PASS {0}", User.Password);
                 SendRawMessage("NICK {0}", User.Nick);
-                // hostname, servername are ignored by most IRC servers
-                SendRawMessage("USER {0} hostname servername :{1}", User.User, User.RealName);
+                if (!string.IsNullOrEmpty(User.User))
+                    // hostname, servername are ignored by most IRC servers
+                    SendRawMessage("USER {0} hostname servername :{1}", User.User, User.RealName);
                 PingTimer.Start();
 
                 string tail = "";
@@ -240,7 +241,7 @@ namespace ChatSharp
                 }
             }
             catch (System.Threading.Tasks.TaskCanceledException)
-            {
+            {//ChatSharp.IrcClient.CancelStream.Cancel() was called
             }
             catch (SocketException e)
             {
@@ -290,7 +291,7 @@ namespace ChatSharp
         /// <summary>
         /// Socket disconnect
         /// </summary>
-        internal void Disconnect(IrcMessage message = null)
+        public void Disconnect(IrcMessage message = null)
         {
             this.CancelStream.Cancel();
             this.Message = message;
@@ -500,10 +501,18 @@ namespace ChatSharp
         /// Raised if the nick you've chosen is in use. By default, ChatSharp will pick a
         /// random nick to use instead. Set ErronousNickEventArgs.DoNotHandle to prevent this.
         /// </summary>
-        public event EventHandler<ErronousNickEventArgs> NickInUse;
-        internal void OnNickInUse(ErronousNickEventArgs e)
+        public event EventHandler<NickInUseEventArgs> NickInUse;
+        internal void OnNickInUse(NickInUseEventArgs e)
         {
             if (NickInUse != null) NickInUse(this, e);
+        }
+        /// <summary>
+        /// Raised if the nick you've chosen is erronous.
+        /// </summary>
+        public event EventHandler<ErronousNickEventArgs> ErronousNick;
+        internal void OnErronousNick(ErronousNickEventArgs e)
+        {
+            if (ErronousNick != null) ErronousNick(this, e);
         }
         /// <summary>
         /// Occurs when a user or channel mode is changed.

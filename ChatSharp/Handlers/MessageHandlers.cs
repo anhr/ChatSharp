@@ -17,10 +17,10 @@ namespace ChatSharp.Handlers
             client.SetHandler("NICK", HandleNick);
             client.SetHandler("QUIT", HandleQuit);
             client.SetHandler("ERROR", ErrorHandlers.HandleFatalError);
-            client.SetHandler("431", HandleErronousNick);
-            client.SetHandler("432", HandleErronousNick);
-            client.SetHandler("433", HandleErronousNick);
-            client.SetHandler("436", HandleErronousNick);
+            client.SetHandler("431", HandleErronousNick);//ERR_NONICKNAMEGIVEN ":No nickname given" - Returned when a nickname parameter expected for a command and isn't found.
+            client.SetHandler("432", HandleErronousNick);//ERR_ERRONEUSNICKNAME "<nick> :Erroneus nickname" - Returned after receiving a NICK message which contains characters which do not fall in the defined set.
+            client.SetHandler("433", HandleErronousNick);//ERR_NICKNAMEINUSE "<nick> :Nickname is already in use" - Returned when a NICK message is processed that results in an attempt to change to a currently existing nickname.
+            client.SetHandler("436", HandleErronousNick);//ERR_NICKCOLLISION "<nick> :Nickname collision KILL" - Returned by a server to a client when it detects a nickname collision (registered of a NICK that already exists by another server).
 
             // MOTD Handlers
             client.SetHandler("375", MOTDHandlers.HandleMOTDStart);
@@ -68,7 +68,9 @@ namespace ChatSharp.Handlers
             client.SetHandler("405", ErrorHandlers.HandleError);//ERR_TOOMANYCHANNELS "<channel name> :You have joined too many \ channels"
             client.SetHandler("406", ErrorHandlers.HandleError);//ERR_WASNOSUCHNICK "<nickname> :There was no such nickname"
             client.SetHandler("407", ErrorHandlers.HandleError);//ERR_TOOMANYTARGETS "<target> :Duplicate recipients. No message \
+            client.SetHandler("421", ErrorHandlers.HandleError);//ERR_UNKNOWNCOMMAND "<command> :Unknown command" - Returned to a registered client to indicate that the command sent is unknown by the server.
             client.SetHandler("442", ErrorHandlers.HandleError);//ERR_NOTONCHANNEL "<channel> :You're not on that channel"
+            client.SetHandler("461", ErrorHandlers.HandleError);//ERR_NEEDMOREPARAMS "<command> :Not enough parameters" - Returned by the server by numerous commands to indicate to the client that it didn't supply enough parameters.
             client.SetHandler("465", ErrorHandlers.HandleError);//ERR_YOUREBANNEDCREEP ":You are banned from this server"
             client.SetHandler("471", ErrorHandlers.HandleError);//ERR_CHANNELISFULL "<channel> :Cannot join channel (+l)"
             client.SetHandler("472", ErrorHandlers.HandleError);//ERR_UNKNOWNMODE "<char> :is unknown mode char to me"
@@ -139,12 +141,13 @@ namespace ChatSharp.Handlers
 
         public static void HandleErronousNick(IrcClient client, IrcMessage message)
         {
-            var eventArgs = new ErronousNickEventArgs(client.User.Nick);
+            var eventArgs = new NickInUseEventArgs(client.User.Nick);
             if (message.Command == "433") // Nick in use
                 client.OnNickInUse(eventArgs);
-            // else ... TODO
             if (!eventArgs.DoNotHandle && client.Settings.GenerateRandomNickIfRefused)
                 client.Nick(eventArgs.NewNick);
+            else
+                client.OnErronousNick(new ErronousNickEventArgs(message));
         }
 
         public static void HandleMode(IrcClient client, IrcMessage message)
