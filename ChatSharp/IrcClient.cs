@@ -81,10 +81,6 @@ namespace ChatSharp
         /// </summary>
         public Stream NetworkStream { get; set; }
         /// <summary>
-        /// cancel of ChatSharp.IrcClient.NetworkStream
-        /// </summary>
-        private System.Threading.CancellationTokenSource CancelStream = new System.Threading.CancellationTokenSource();
-        /// <summary>
         /// Message of socket disconnect
         /// </summary>
         private IrcMessage Message;
@@ -227,12 +223,11 @@ namespace ChatSharp
                     // hostname, servername are ignored by most IRC servers
                     SendRawMessage("USER {0} hostname servername :{1}", User.User, User.RealName);
                 PingTimer.Start();
-
                 string tail = "";
                 byte[] buffer = new byte[1024];
                 int byteCount;
 
-                while ((byteCount = await this.NetworkStream.ReadAsync(buffer, 0, buffer.Length, this.CancelStream.Token)) > 0)
+                while ((byteCount = await this.NetworkStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                 {
                     string[] lines = (tail + Encoding.GetString(buffer, 0, byteCount)).Split('\n');
                     for (int i = 0; i < lines.Length - 1; i++)
@@ -240,12 +235,17 @@ namespace ChatSharp
                     tail = lines[lines.Length - 1];
                 }
             }
-            catch (System.Threading.Tasks.TaskCanceledException)
-            {//ChatSharp.IrcClient.CancelStream.Cancel() was called
-            }
             catch (SocketException e)
             {
                 OnNetworkError(new SocketErrorEventArgs(e.SocketErrorCode));
+            }
+            catch (System.IO.IOException e)
+            {
+                var socketException = e.InnerException as SocketException;
+                if (socketException != null)
+                    OnNetworkError(new SocketErrorEventArgs(socketException.SocketErrorCode));
+                else
+                    throw;
             }
             catch (Exception e)
             {
@@ -259,7 +259,6 @@ namespace ChatSharp
                 this.NetworkStream = null;
             }
             tcpClient.Close();
-            this.CancelStream.Dispose();
             OnDisconnected(new Events.ErrorReplyEventArgs(this.Message));
         }
 
@@ -293,7 +292,6 @@ namespace ChatSharp
         /// </summary>
         public void Disconnect(IrcMessage message = null)
         {
-            this.CancelStream.Cancel();
             this.Message = message;
         }
 
