@@ -146,7 +146,7 @@ namespace ChatSharp.Handlers
                 client.OnNickInUse(eventArgs);
             if (!eventArgs.DoNotHandle && client.Settings.GenerateRandomNickIfRefused)
                 client.Nick(eventArgs.NewNick);
-            else
+            else if (message.Command != "433") // Nick is not use
                 client.OnErronousNick(new ErronousNickEventArgs(message));
         }
 
