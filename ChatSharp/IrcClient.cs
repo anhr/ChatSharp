@@ -194,7 +194,7 @@ namespace ChatSharp
                 }
             };
             checkQueue.Start();
-
+            string strError = "";
             TcpClient tcpClient = new TcpClient();
             try
             {
@@ -247,8 +247,14 @@ namespace ChatSharp
                 else
                     throw;
             }
+            catch (System.AggregateException e)
+            {
+                strError = e.InnerException.Message;
+                OnError(new Events.ErrorEventArgs(e));
+            }
             catch (Exception e)
             {
+                strError = e.Message;
                 OnError(new Events.ErrorEventArgs(e));
             }
             PingTimer.Dispose();
@@ -259,7 +265,7 @@ namespace ChatSharp
                 this.NetworkStream = null;
             }
             tcpClient.Close();
-            OnDisconnected(new Events.ErrorReplyEventArgs(this.Message));
+            OnDisconnected(new Events.ErrorReplyEventArgs((this.Message != null) ? this.Message : new IrcMessage(strError)));
         }
 
         /// <summary>
