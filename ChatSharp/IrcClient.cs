@@ -205,6 +205,8 @@ namespace ChatSharp
                     OnNetworkError(new SocketErrorEventArgs(SocketError.TimedOut));
                     return;
                 }
+                else
+                    OnNetworkError(new SocketErrorEventArgs(SocketError.Success));
                 this.NetworkStream = tcpClient.GetStream();
                 if (UseSSL)
                 {
