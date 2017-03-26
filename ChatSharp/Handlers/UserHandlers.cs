@@ -87,6 +87,8 @@ namespace ChatSharp.Handlers
             if (request.Callback != null)
                 request.Callback(request);
             client.OnWhoIsReceived(new Events.WhoIsReceivedEventArgs(whois));
+            if (!string.IsNullOrEmpty(client.User.NSPassword))
+                client.SendRawMessage("NickServ IDENTIFY {0}", client.User.NSPassword);
         }
     }
 }

@@ -66,6 +66,14 @@ namespace ChatSharp
         }
 
         /// <summary>
+        /// Constructs an IRC user given a nick, user, password, real name and Nickserv's password.
+        /// </summary>
+        public IrcUser(string nick, string user, string password, string realName, string NSPassword) : this(nick, user, password, realName)
+        {
+            this.NSPassword = NSPassword;
+        }
+
+        /// <summary>
         /// The user's nick.
         /// </summary>
         public string Nick { get; internal set; }
@@ -75,8 +83,14 @@ namespace ChatSharp
         public string User { get; internal set; }
         /// <summary>
         /// The user's password. Will not be set on anyone but your own user.
+        /// See https://tools.ietf.org/html/rfc1459#section-4.1.1
         /// </summary>
         public string Password { get; internal set; }
+        /// <summary>
+        /// The user's password for identify in Nickserv. Will not be set on anyone but your own user.
+        /// See http://wiki.foonetic.net/wiki/Nickserv_Commands
+        /// </summary>
+        public string NSPassword { get; internal set; }
         /// <summary>
         /// The user's mode.
         /// </summary>
