@@ -142,7 +142,7 @@ namespace ChatSharp.Handlers
 
         public static void HandleErronousNick(IrcClient client, IrcMessage message)
         {
-            var eventArgs = new NickInUseEventArgs(client.User.Nick);
+            var eventArgs = new NickInUseEventArgs(message.Parameters[1]);
             if (message.Command == "433") // Nick in use
                 client.OnNickInUse(eventArgs);
             if (!eventArgs.DoNotHandle && client.Settings.GenerateRandomNickIfRefused)
