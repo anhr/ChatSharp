@@ -10,11 +10,26 @@ namespace ChatSharp.Handlers
         /// </summary>
         public static void HandleError(IrcClient client, IrcMessage message)
         {
-            if (message.Command == "401")
+            switch (message.Command)
             {
-                RequestOperation requestOperation = client.RequestManager.PeekOperation("WHOIS " + message.Parameters[1]);
-                if(requestOperation != null)
-                    ((WhoIs)requestOperation.State).error = message.Command;
+                case "401"://ERR_NOSUCHNICK "<nickname> :No such nick/channel"
+                    RequestOperation requestOperation = client.RequestManager.PeekOperation("WHOIS " + message.Parameters[1]);
+                    if (requestOperation != null)
+                        ((WhoIs)requestOperation.State).error = message.Command;
+                    break;
+                case "421"://ERR_UNKNOWNCOMMAND "<command> :Unknown command" - Returned to a registered client to indicate that the command sent is unknown by the server.
+                    if (message.Parameters[1] == "NickServ")
+                    {
+                        if (!string.IsNullOrEmpty(client.User.NSPassword))
+                        {
+                            RequestOperation requestOperationNickServ = client.RequestManager.DequeueOperation("NickServ");
+                            if (requestOperationNickServ == null)
+                                break;
+                            client.SendRawMessage("privmsg NickServ {0}", ((ChatSharp.Handlers.UserHandlers.NickServState)(requestOperationNickServ.State)).Arguments);
+                            return;
+                        }
+                    }
+                    break;
             }
             client.OnErrorReply(new Events.ErrorReplyEventArgs(message));
         }

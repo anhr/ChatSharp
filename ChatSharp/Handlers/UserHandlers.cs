@@ -88,7 +88,26 @@ namespace ChatSharp.Handlers
                 request.Callback(request);
             client.OnWhoIsReceived(new Events.WhoIsReceivedEventArgs(whois));
             if (!string.IsNullOrEmpty(client.User.NSPassword))
-                client.SendRawMessage("NickServ IDENTIFY {0}", client.User.NSPassword);
+            {
+                string arguments = "IDENTIFY " + client.User.NSPassword;
+                client.RequestManager.QueueOperation("NickServ", new RequestOperation(new ChatSharp.Handlers.UserHandlers.NickServState(arguments), ro =>{}));
+                client.SendRawMessage("NickServ {0}", arguments);
+            }
+        }
+        /// <summary>
+        /// Raised when a IRC Error reply occurs. See rfc1459 6.1 for details.
+        /// </summary>
+        public class NickServState
+        {
+            /// <summary>
+            /// The IRC error reply that has occured.
+            /// </summary>
+            public string Arguments { get; set; }
+
+            internal NickServState(string arguments)
+            {
+                Arguments = arguments;
+            }
         }
     }
 }

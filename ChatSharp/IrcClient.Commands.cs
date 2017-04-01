@@ -217,6 +217,17 @@ namespace ChatSharp
             SendRawMessage("LIST {0} {1}", channels, server);
         }
         /// <summary>
+        /// NickServ Registering Nicknames. http://wiki.foonetic.net/wiki/Nickserv_Commands#Registering_Nicknames
+        /// </summary>
+        /// <param name="pass">NickServ password</param>
+        /// <param name="email">An email containing an authentication code will be sent to the specified email address.</param>
+        public void NSRegister(string pass, string email)
+        {
+            string arguments = "REGISTER " + pass + " " + email;
+            RequestManager.QueueOperation("NickServ", new RequestOperation(new ChatSharp.Handlers.UserHandlers.NickServState(arguments), ro =>{}));
+            SendRawMessage("NickServ {0}", arguments);
+        }
+        /// <summary>
         /// Names message. https://tools.ietf.org/html/rfc1459#section-4.2.5
         /// </summary>
         /// <param name="channels">Comma separated channels list. If  the channels  parameter  is  used, specifies which channel(s) to return information about if valid.</param>
