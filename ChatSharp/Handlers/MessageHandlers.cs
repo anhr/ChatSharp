@@ -36,7 +36,8 @@ namespace ChatSharp.Handlers
             client.SetHandler("353", ChannelHandlers.HandleUserListPart);
             client.SetHandler("366", ChannelHandlers.HandleUserListEnd);
             client.SetHandler("KICK", ChannelHandlers.HandleKick);
-
+            client.SetHandler("TOPIC", ChannelHandlers.HandleTopic);
+            
             // User handlers
             client.SetHandler("311", UserHandlers.HandleWhoIsUser);
             client.SetHandler("312", UserHandlers.HandleWhoIsServer);

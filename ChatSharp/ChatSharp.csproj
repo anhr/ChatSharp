@@ -61,6 +61,7 @@
     <Compile Include="Events\ServerMOTDEventArgs.cs" />
     <Compile Include="Events\SocketErrorEventArgs.cs" />
     <Compile Include="Events\SupportsEventArgs.cs" />
+    <Compile Include="Events\TopicEventArgs.cs" />
     <Compile Include="Events\UserListEventArgs.cs" />
     <Compile Include="Events\WhoIsEventArgs.cs" />
     <Compile Include="Handlers\ChannelHandlers.cs" />

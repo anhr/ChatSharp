@@ -154,5 +154,10 @@ namespace ChatSharp.Handlers
             client.OnUserKicked(new KickEventArgs(channel, new IrcUser(message.Prefix),
                 kicked, message.Parameters[2]));
         }
+
+        public static void HandleTopic(IrcClient client, IrcMessage message)
+        {
+            client.OnTopic(new TopicEventArgs(message));
+        }
     }
 }

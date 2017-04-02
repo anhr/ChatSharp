@@ -585,6 +585,14 @@ namespace ChatSharp
             if (UserKicked != null) UserKicked(this, e);
         }
         /// <summary>
+        /// Occurs when a topic of a channel has changed.
+        /// </summary>
+        public event EventHandler<TopicEventArgs> Topic;
+        internal void OnTopic(TopicEventArgs e)
+        {
+            if (Topic != null) Topic(this, e);
+        }
+        /// <summary>
         /// Occurs when a WHOIS response is received.
         /// </summary>
         public event EventHandler<WhoIsReceivedEventArgs> WhoIsReceived;
