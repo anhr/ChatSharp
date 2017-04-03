@@ -45,6 +45,8 @@ namespace ChatSharp.Handlers
         public static void HandleListEnd(IrcClient client, IrcMessage message)
         {
             var request = client.RequestManager.PeekOperation("LIST");
+            if (request == null)
+                return;
             ((ListState)request.State).Message = message;
             if (request.Callback != null)
                 request.Callback(request);
