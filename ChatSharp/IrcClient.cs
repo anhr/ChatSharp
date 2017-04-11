@@ -641,6 +641,14 @@ namespace ChatSharp
             if (ListReply != null) ListReply(this, e);
         }
         /// <summary>
+        /// IRC server's reply 323 RPL_LISTEND ":End of /LIST". rfc1459#section-4.2.6 Command responses.
+        /// </summary>
+        public event EventHandler<Events.ListStartEventArgs> ListEnd;
+        internal void OnListEnd(Events.ListStartEventArgs e)
+        {
+            if (ListEnd != null) ListEnd(this, e);
+        }
+        /// <summary>
         /// IRC server's reply 353 RPL_NAMREPLY "&lt;channel&gt; :[[@|+]&lt;nick&lt; [[@|+]&lt;nick&lt; [...]]]". NAMES message reply. https://tools.ietf.org/html/rfc1459#section-4.2.5
         /// </summary>
         public event EventHandler<Events.UserListEventArgs> UserListReply;

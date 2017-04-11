@@ -23,11 +23,17 @@ namespace ChatSharp.Handlers
             try
             {
                 var request = client.RequestManager.PeekOperation("LIST");
-                ListState listState = (ListState)request.State;
-                listState.Channel = new IrcChannel(client, message);
-                if (client.Channels.Contains(listState.Channel))
-                    return;
-                client.Channels.Add(listState.Channel);
+                ListState listState;
+                if (request == null)
+                    listState = new ListState(message);
+                else
+                {
+                    listState = (ListState)request.State;
+                    listState.Channel = new IrcChannel(client, message);
+                    if (client.Channels.Contains(listState.Channel))
+                        return;
+                    client.Channels.Add(listState.Channel);
+                }
                 client.OnListPartRecieved(new Events.ListEventArgs(listState));
             }
             catch (InvalidOperationException e)
@@ -46,7 +52,10 @@ namespace ChatSharp.Handlers
         {
             var request = client.RequestManager.PeekOperation("LIST");
             if (request == null)
+            {
+                client.OnListEnd(new Events.ListStartEventArgs(message));
                 return;
+            }
             ((ListState)request.State).Message = message;
             if (request.Callback != null)
                 request.Callback(request);

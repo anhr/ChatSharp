@@ -26,5 +26,12 @@ namespace ChatSharp
         {
             Channels = channels;
         }
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public ListState(IrcMessage message)
+        {
+            Message = message;
+        }
     }
 }
