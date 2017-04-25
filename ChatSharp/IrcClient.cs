@@ -43,8 +43,14 @@ namespace ChatSharp
             return new DateTime(1970, 1, 1).AddSeconds(time);
         }
 
-        private string ServerHostname { get; set; }
-        private int ServerPort { get; set; }
+        /// <summary>
+        /// The address this client is connected to, or will connect to.
+        /// </summary>
+        public string ServerHostname { get; private set; }
+        /// <summary>
+        /// The port this client is connected to, or will connect to.
+        /// </summary>
+        public int ServerPort { get; private set; }
         private Timer PingTimer { get; set; }
         private ConcurrentQueue<string> WriteQueue { get; set; }
         private bool IsWriting { get; set; }
