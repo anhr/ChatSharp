@@ -9,7 +9,9 @@ namespace ChatSharp.Handlers
         {
             if (message.Parameters != null && message.Parameters.Length >= 6)
             {
-                var whois = (WhoIs)client.RequestManager.PeekOperation("WHOIS " + message.Parameters[1]).State;
+                var whois = PeekWhoIsOperation(client, message);
+                if (whois == null)
+                    return;
                 whois.User.Nick = message.Parameters[1];
                 whois.User.User = message.Parameters[2];
                 whois.User.Hostname = message.Parameters[3];
@@ -81,6 +83,8 @@ namespace ChatSharp.Handlers
         public static void HandleWhoIsEnd(IrcClient client, IrcMessage message)
         {
             var request = client.RequestManager.DequeueOperation("WHOIS " + message.Parameters[1]);
+            if (request == null)
+                return;
             var whois = (WhoIs)request.State;
             if (!client.Users.Contains(whois.User.Nick))
                 client.Users.Add(whois.User);
@@ -90,7 +94,7 @@ namespace ChatSharp.Handlers
             if (!string.IsNullOrEmpty(client.User.NSPassword))
             {
                 string arguments = "IDENTIFY " + client.User.NSPassword;
-                client.RequestManager.QueueOperation("NickServ", new RequestOperation(new ChatSharp.Handlers.UserHandlers.NickServState(arguments), ro =>{}));
+                client.RequestManager.QueueOperation("NickServ", new RequestOperation(new ChatSharp.Handlers.UserHandlers.NickServState(arguments), ro => { }));
                 client.SendRawMessage("NickServ {0}", arguments);
             }
         }
