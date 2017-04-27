@@ -43,6 +43,14 @@ namespace ChatSharp.Handlers
             whois.LoggedInAs = message.Parameters[2];
         }
 
+        public static void HandleWhoIsLocation(IrcClient client, IrcMessage message)
+        {
+            var whois = PeekWhoIsOperation(client, message);
+            if (whois == null)
+                return;
+            whois.Location = message.Parameters[3];
+        }
+
         public static void HandleWhoIsServer(IrcClient client, IrcMessage message)
         {
             var whois = PeekWhoIsOperation(client, message);

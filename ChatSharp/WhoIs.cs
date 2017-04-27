@@ -44,6 +44,10 @@ namespace ChatSharp
         /// </summary>
         public string LoggedInAs { get; set; }
         /// <summary>
+        /// Users location.
+        /// </summary>
+        public string Location { get; set; }
+        /// <summary>
         /// The error of an IRC WHOIS query. For example error = "401" ERR_NOSUCHNICK "nickname :No such nick/channel"
         /// </summary>
         public string error { get; set; }
