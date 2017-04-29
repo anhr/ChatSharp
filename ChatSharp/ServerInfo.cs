@@ -24,6 +24,16 @@ namespace ChatSharp
         }
 
         /// <summary>
+        /// Gets the user list prefix for a given channel mode.
+        /// </summary>
+        public char? GetPrefixForMode(char? mode)
+        {
+            if ((mode == null) || (Prefixes[0].IndexOf((char)mode) == -1))
+                return null;
+            return Prefixes[1][Prefixes[0].IndexOf((char)mode)];
+        }
+
+        /// <summary>
         /// ChatSharp makes some assumptions about what the server supports in order to function properly.
         /// If it has not recieved a 005 message giving it accurate information, this value will be true.
         /// </summary>

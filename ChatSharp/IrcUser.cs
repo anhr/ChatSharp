@@ -112,7 +112,10 @@ namespace ChatSharp
         /// <value>The channels.</value>
         public ChannelCollection Channels { get; set; }
 
-        internal Dictionary<IrcChannel, char?> ChannelModes { get; set; }
+        /// <summary>
+        /// The user's channel modes.
+        /// </summary>
+        public Dictionary<IrcChannel, char?> ChannelModes { get; internal set; }
 
         /// <summary>
         /// This user's hostmask (nick!user@host).
