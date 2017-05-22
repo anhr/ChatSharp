@@ -5,6 +5,22 @@ namespace ChatSharp.Handlers
 {
     internal static class UserHandlers
     {
+        public static void HandleWhoIsRegNick(IrcClient client, IrcMessage message)
+        {
+            var whois = PeekWhoIsOperation(client, message);
+            if (whois == null)
+                return;
+            whois.RegNick = true;
+        }
+
+        public static void HandleWhoIsNickTrace(IrcClient client, IrcMessage message)
+        {
+            var whois = PeekWhoIsOperation(client, message);
+            if (whois == null)
+                return;
+            whois.NickTraces.Add(message.Parameters[2], message.Parameters[3]);
+        }
+
         public static void HandleWhoIsUser(IrcClient client, IrcMessage message)
         {
             if (message.Parameters != null && message.Parameters.Length >= 6)

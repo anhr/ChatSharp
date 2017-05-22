@@ -37,8 +37,10 @@ namespace ChatSharp.Handlers
             client.SetHandler("366", ChannelHandlers.HandleUserListEnd);
             client.SetHandler("KICK", ChannelHandlers.HandleKick);
             client.SetHandler("TOPIC", ChannelHandlers.HandleTopic);
-            
+
             // User handlers
+            client.SetHandler("307", UserHandlers.HandleWhoIsRegNick);//RPL_WHOISREGNICK example: :java.webchat.org 307 bonalink aro 179751 :is using a registered nickname. https://www.alien.net.au/irc/irc2numerics.html
+            client.SetHandler("309", UserHandlers.HandleWhoIsNickTrace);//RPL_NICKTRACE example: :java.webchat.org 309 bonalink aro en :Preferred language: English
             client.SetHandler("311", UserHandlers.HandleWhoIsUser);
             client.SetHandler("312", UserHandlers.HandleWhoIsServer);
             client.SetHandler("313", UserHandlers.HandleWhoIsOperator);
