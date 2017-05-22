@@ -15,7 +15,7 @@ namespace ChatSharp.Handlers
             var user = client.Users.GetOrAdd(message.Prefix);
             user.Channels.Add(channel);
             if (channel != null)
-                client.OnUserJoinedChannel(new ChannelUserEventArgs(channel, new IrcUser(message.Prefix)));
+                client.OnUserJoinedChannel(new ChannelUserEventArgs(channel, user));
         }
 
         public static void HandleGetTopic(IrcClient client, IrcMessage message)
