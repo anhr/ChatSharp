@@ -43,7 +43,11 @@ namespace ChatSharp.Handlers
             var channel = client.Channels[message.Parameters[0]];
 
             if (user.Channels.Contains(channel))
+            {
+                if (user.ChannelModes.ContainsKey(channel))
+                    user.ChannelModes.Remove(channel);
                 user.Channels.Remove(channel);
+            }
             client.OnUserPartedChannel(new ChannelUserEventArgs(client.Channels[message.Parameters[0]],
                 new IrcUser(message.Prefix)));
             foreach(var u in client.Users)
@@ -60,7 +64,16 @@ namespace ChatSharp.Handlers
             if (!user.Channels.Contains(channel))
                 user.Channels.Add(channel);
             if (!user.ChannelModes.ContainsKey(channel))
+            {
+#if DEBUG
+                foreach (var ChannelMode in user.ChannelModes)
+                {
+                    if (ChannelMode.Key.Name == channel.Name)
+                        System.Diagnostics.Trace.Fail("Duplicate ChannelMode: " + ChannelMode.Key.Name);
+                }
+#endif
                 user.ChannelModes.Add(channel, mode);
+            }
             else
                 user.ChannelModes[channel] = mode;
             var request = client.RequestManager.PeekOperation("NAMES");
