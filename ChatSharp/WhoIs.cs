@@ -11,6 +11,7 @@ namespace ChatSharp
             User = new IrcUser();
             SecondsIdle = -1;
             Channels = new string[0];
+            NickTraces = new System.Collections.Generic.Dictionary<string, string>();
         }
 
         /// <summary>
@@ -26,6 +27,14 @@ namespace ChatSharp
         /// If true, the whois'd user is a network operator.
         /// </summary>
         public bool IrcOp { get; set; }
+        /// <summary>
+        /// If true, the whois'd user is using a registered nickname. See 307 RPL_WHOISREGNICK command response.
+        /// </summary>
+        public bool RegNick { get; set; }
+        /// <summary>
+        /// The user's nick traces.
+        /// </summary>
+        public System.Collections.Generic.Dictionary<string, string> NickTraces { get; set; }
         /// <summary>
         /// Seconds since this user last interacted with IRC.
         /// </summary>
