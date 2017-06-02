@@ -86,6 +86,7 @@ namespace ChatSharp.Handlers
             client.SetHandler("477", ErrorHandlers.HandleError);//"<channel> :Cannot join channel (+r) - you need to be identified with services"
             client.SetHandler("479", ErrorHandlers.HandleError);//"<channel> :Illegal channel name
             client.SetHandler("482", ErrorHandlers.HandleError);//ERR_CHANOPRIVSNEEDED "<channel> :You're not channel operator" - Any command requiring 'chanop' privileges(such as MODE messages) must return this error if the client making the attempt is not a chanop on the specified channel.
+            client.SetHandler("494", ErrorHandlers.HandleError);//ERR_BADFEATURE
             client.SetHandler("538", ErrorHandlers.HandleError);//"<channel1> is linked to <channel2> but <channel2> is not accepting links from <channel1>." reply from irc.swiftirc.net IRC server
 
             //Replies RPL_LISTSTART, RPL_LIST, RPL_LISTEND mark
