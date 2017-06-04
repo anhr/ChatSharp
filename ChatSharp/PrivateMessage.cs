@@ -18,10 +18,7 @@ namespace ChatSharp
             if (serverInfo.ChannelTypes.Any(c => Source.StartsWith(c.ToString())))
                 IsChannelMessage = true;
             else
-            {
                 Source = User.Nick;
-                Receiver = message.Parameters[0];
-            }
         }
 
         /// <summary>
@@ -36,10 +33,6 @@ namespace ChatSharp
         /// The source of the message (a nick or a channel name).
         /// </summary>
         public string Source { get; set; }
-        /// <summary>
-        /// The nickname of the receiver of the message.
-        /// </summary>
-        public string Receiver { get; set; }
         /// <summary>
         /// True if this message was posted to a channel.
         /// </summary>
