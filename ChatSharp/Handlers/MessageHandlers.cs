@@ -120,7 +120,7 @@ namespace ChatSharp.Handlers
             if (client.User.Nick != user.Nick)
             {
                 client.Users.Remove(user.Nick);
-                client.OnUserQuit(new UserEventArgs(user));
+                client.OnUserQuit(new UserEventArgs(user, message.Parameters[0]));
             }
             else
                 client.Disconnect();

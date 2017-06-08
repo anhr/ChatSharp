@@ -12,9 +12,15 @@ namespace ChatSharp.Events
         /// </summary>
         public IrcUser User { get; set; }
 
-        internal UserEventArgs(IrcUser user)
+        /// <summary>
+        /// Reason for the end of the client session
+        /// </summary>
+        public string Reason { get; set; }
+
+        internal UserEventArgs(IrcUser user, string reason)
         {
             User = user;
+            Reason = reason;
         }
     }
 }
