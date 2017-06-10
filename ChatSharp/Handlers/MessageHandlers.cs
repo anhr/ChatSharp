@@ -8,6 +8,8 @@ namespace ChatSharp.Handlers
     {
         public static void RegisterDefaultHandlers(IrcClient client)
         {
+            //All IRS replies https://www.alien.net.au/irc/irc2numerics.html
+
             // General
             client.SetHandler("PING", HandlePing);
             client.SetHandler("NOTICE", HandleNotice);
@@ -39,7 +41,7 @@ namespace ChatSharp.Handlers
             client.SetHandler("TOPIC", ChannelHandlers.HandleTopic);
 
             // User handlers
-            client.SetHandler("307", UserHandlers.HandleWhoIsRegNick);//RPL_WHOISREGNICK example: :java.webchat.org 307 bonalink aro 179751 :is using a registered nickname. https://www.alien.net.au/irc/irc2numerics.html
+            client.SetHandler("307", UserHandlers.HandleWhoIsRegNick);//RPL_WHOISREGNICK example: :java.webchat.org 307 bonalink aro 179751 :is using a registered nickname.
             client.SetHandler("309", UserHandlers.HandleWhoIsNickTrace);//RPL_NICKTRACE example: :java.webchat.org 309 bonalink aro en :Preferred language: English
             client.SetHandler("311", UserHandlers.HandleWhoIsUser);
             client.SetHandler("312", UserHandlers.HandleWhoIsServer);
@@ -86,6 +88,7 @@ namespace ChatSharp.Handlers
             client.SetHandler("477", ErrorHandlers.HandleError);//"<channel> :Cannot join channel (+r) - you need to be identified with services"
             client.SetHandler("479", ErrorHandlers.HandleError);//"<channel> :Illegal channel name
             client.SetHandler("482", ErrorHandlers.HandleError);//ERR_CHANOPRIVSNEEDED "<channel> :You're not channel operator" - Any command requiring 'chanop' privileges(such as MODE messages) must return this error if the client making the attempt is not a chanop on the specified channel.
+            client.SetHandler("485", ErrorHandlers.HandleError);//ERR_UNIQOPRIVSNEEDED	RFC2812	:<reason>	Any mode requiring 'channel creator' privileges returns this error if the client is attempting to use it while not a channel creator on the given channel
             client.SetHandler("494", ErrorHandlers.HandleError);//ERR_BADFEATURE
             client.SetHandler("538", ErrorHandlers.HandleError);//"<channel1> is linked to <channel2> but <channel2> is not accepting links from <channel1>." reply from irc.swiftirc.net IRC server
 
