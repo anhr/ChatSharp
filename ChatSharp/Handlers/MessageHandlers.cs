@@ -12,6 +12,7 @@ namespace ChatSharp.Handlers
 
             // General
             client.SetHandler("PING", HandlePing);
+            client.SetHandler("PONG", HandlePong);
             client.SetHandler("NOTICE", HandleNotice);
             client.SetHandler("PRIVMSG", HandlePrivmsg);
             client.SetHandler("MODE", HandleMode);
@@ -133,6 +134,13 @@ namespace ChatSharp.Handlers
         {
             client.ServerNameFromPing = message.Parameters[0];
             client.SendRawMessage("PONG :{0}", message.Parameters[0]);
+        }
+
+        /// <summary>
+        /// Exclude unhandled message event
+        /// </summary>
+        public static void HandlePong(IrcClient client, IrcMessage message)
+        {
         }
 
         public static void HandleNotice(IrcClient client, IrcMessage message)
