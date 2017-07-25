@@ -319,7 +319,7 @@ namespace ChatSharp
                     Handlers[message.Command.ToUpper()](this, message);
                 else
                 {
-                    // TODO: Fire an event or something
+                    OnUnhandledMessageRecieved(new RawMessageEventArgs(rawMessage, false));
                 }
             }
             catch (Exception e)
@@ -460,6 +460,14 @@ namespace ChatSharp
         internal void OnRawMessageRecieved(RawMessageEventArgs e)
         {
             if (RawMessageRecieved != null) RawMessageRecieved(this, e);
+        }
+        /// <summary>
+        /// Occurs when an unhandled message received.
+        /// </summary>
+        public event EventHandler<RawMessageEventArgs> UnhandledMessageRecieved;
+        internal void OnUnhandledMessageRecieved(RawMessageEventArgs e)
+        {
+            if (UnhandledMessageRecieved != null) UnhandledMessageRecieved(this, e);
         }
         /// <summary>
         /// Occurs when a notice recieved.
