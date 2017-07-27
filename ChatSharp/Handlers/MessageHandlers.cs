@@ -91,6 +91,7 @@ namespace ChatSharp.Handlers
             client.SetHandler("482", ErrorHandlers.HandleError);//ERR_CHANOPRIVSNEEDED "<channel> :You're not channel operator" - Any command requiring 'chanop' privileges(such as MODE messages) must return this error if the client making the attempt is not a chanop on the specified channel.
             client.SetHandler("485", ErrorHandlers.HandleError);//ERR_UNIQOPRIVSNEEDED	RFC2812	:<reason>	Any mode requiring 'channel creator' privileges returns this error if the client is attempting to use it while not a channel creator on the given channel
             client.SetHandler("494", ErrorHandlers.HandleError);//ERR_BADFEATURE
+            client.SetHandler("513", ErrorHandlers.HandleError);//ERR_BADPING Also known as ERR_NEEDPONG (Unreal/Ultimate) for use during registration, however it's not used in Unreal (and might not be used in Ultimate either).
             client.SetHandler("538", ErrorHandlers.HandleError);//"<channel1> is linked to <channel2> but <channel2> is not accepting links from <channel1>." reply from irc.swiftirc.net IRC server
 
             //Replies RPL_LISTSTART, RPL_LIST, RPL_LISTEND mark
