@@ -10,19 +10,21 @@ namespace ChatSharp.Handlers
         public static void HandleMOTDStart(IrcClient client, IrcMessage message)
         {
             MOTD = string.Empty;
+            client.OnMOTDPartRecieved(new ServerMOTDEventArgs(message.Parameters[1]));
         }
 
         public static void HandleMOTD(IrcClient client, IrcMessage message)
         {
             if (message.Parameters.Length != 2)
                 throw new IrcProtocolException("372 MOTD message is incorrectly formatted.");
-            var part = message.Parameters[1].Substring(2);
-            MOTD += part + Environment.NewLine;
+            var part = message.Parameters[1];
             client.OnMOTDPartRecieved(new ServerMOTDEventArgs(part));
+            MOTD += part.Substring(2) + Environment.NewLine;
         }
 
         public static void HandleEndOfMOTD(IrcClient client, IrcMessage message)
         {
+            client.OnMOTDPartRecieved(new ServerMOTDEventArgs(message.Parameters[1]));
             client.OnMOTDRecieved(new ServerMOTDEventArgs(MOTD));
             client.OnConnectionComplete(new EventArgs());
             // Verify our identity
