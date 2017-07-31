@@ -223,9 +223,7 @@ namespace ChatSharp
         /// <param name="email">An email containing an authentication code will be sent to the specified email address.</param>
         public void NSRegister(string pass, string email)
         {
-            string arguments = "REGISTER " + pass + " " + email;
-            RequestManager.QueueOperation("NickServ", new RequestOperation(new ChatSharp.Handlers.UserHandlers.NickServState(arguments), ro =>{}));
-            SendRawMessage("NickServ {0}", arguments);
+            SendRawMessage("NickServ {0}", "REGISTER " + pass + " " + email);
         }
         /// <summary>
         /// Names message. https://tools.ietf.org/html/rfc1459#section-4.2.5

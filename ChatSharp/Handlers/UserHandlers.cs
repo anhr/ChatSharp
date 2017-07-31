@@ -117,9 +117,7 @@ namespace ChatSharp.Handlers
             client.OnWhoIsReceived(new Events.WhoIsReceivedEventArgs(whois));
             if (!string.IsNullOrEmpty(client.User.NSPassword))
             {
-                string arguments = "IDENTIFY " + client.User.NSPassword;
-                client.RequestManager.QueueOperation("NickServ", new RequestOperation(new ChatSharp.Handlers.UserHandlers.NickServState(arguments), ro => { }));
-                client.SendRawMessage("NickServ {0}", arguments);
+                client.SendRawMessage("NickServ {0}", "IDENTIFY " + client.User.NSPassword);
             }
         }
         /// <summary>
