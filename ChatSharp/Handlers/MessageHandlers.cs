@@ -76,6 +76,7 @@ namespace ChatSharp.Handlers
             client.SetHandler("406", ErrorHandlers.HandleError);//ERR_WASNOSUCHNICK "<nickname> :There was no such nickname"
             client.SetHandler("407", ErrorHandlers.HandleError);//ERR_TOOMANYTARGETS "<target> :Duplicate recipients. No message \
             client.SetHandler("421", ErrorHandlers.HandleError);//ERR_UNKNOWNCOMMAND "<command> :Unknown command" - Returned to a registered client to indicate that the command sent is unknown by the server.
+            client.SetHandler("437", ErrorHandlers.HandleError);//ERR_UNAVAILRESOURCE	RFC2812	<nick/channel/service> :<reason>	Return when the target is unable to be reached temporarily, eg. a delay mechanism in play, or a service being offline
             client.SetHandler("442", ErrorHandlers.HandleError);//ERR_NOTONCHANNEL "<channel> :You're not on that channel"
             client.SetHandler("451", ErrorHandlers.HandleError);//ERR_NOTREGISTERED ":You have not registered" - Returned by the server to indicate that the client must be registered before the server will allow it to be parsed in detail.
             client.SetHandler("455", ErrorHandlers.HandleError);//ERR_HOSTILENAME
