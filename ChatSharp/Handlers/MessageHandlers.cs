@@ -232,7 +232,7 @@ namespace ChatSharp.Handlers
                                     return u.ChannelModes[channel] == c;
                                 })));
                         }
-                        var user = new IrcUser(message.Parameters[0]);
+                        var user = new IrcUser(message.Parameters[2]);
                         if (add)
                         {
                             if (!channel.UsersByMode[c].Contains(user.Nick))
