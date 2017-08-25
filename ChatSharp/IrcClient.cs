@@ -575,6 +575,14 @@ namespace ChatSharp
             if (ChannelTopicReceived != null) ChannelTopicReceived(this, e);
         }
         /// <summary>
+        /// Occurs when we have received the topic of a channel or when you JOIN, if the channel has a topic.
+        /// </summary>
+        public event EventHandler<ChannelTopicWhoTimeEventArgs> ChannelTopicWhoTimeReceived;
+        internal void OnChannelTopicWhoTimeReceived(ChannelTopicWhoTimeEventArgs e)
+        {
+            if (ChannelTopicWhoTimeReceived != null) ChannelTopicWhoTimeReceived(this, e);
+        }
+        /// <summary>
         /// Occurs when the IRC connection is established and it is safe to begin interacting with the server.
         /// </summary>
         public event EventHandler<EventArgs> ConnectionComplete;

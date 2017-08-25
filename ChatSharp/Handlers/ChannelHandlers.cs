@@ -34,6 +34,20 @@ namespace ChatSharp.Handlers
             client.OnChannelTopicReceived(new ChannelTopicEventArgs(channel, old, channel._Topic));
         }
 
+        /// <summary>
+        /// <para>RPL_TOPICWHOTIME 333</para>
+        /// <para>This is returned for a TOPIC request or when you JOIN, if the channel has a topic.</para>
+        /// <para>message.Parameters[1]: A channel name.</para>
+        /// <para>message.Parameters[2]: User who last set the channel topic.</para>
+        /// <para>message.Parameters[3]: The time the user set the current channel topic.</para>
+        /// <para>example: 333 blink #kif psycon!~psy@comm.wurbz.de 1500138059</para>
+        /// <para>http://www.tracyexpressbaseball.com/mishbox/reference/rawhelp3.htm#raw333</para>
+        /// </summary>
+        public static void HandleTopicWhoTime(IrcClient client, IrcMessage message)
+        {
+            client.OnChannelTopicWhoTimeReceived(new ChannelTopicWhoTimeEventArgs(client.Channels.GetOrAdd(message.Parameters[1]), message.Parameters[2], message.Parameters[3]));
+        }
+
         public static void HandlePart(IrcClient client, IrcMessage message)
         {
             if (!client.Channels.Contains(message.Parameters[0]))

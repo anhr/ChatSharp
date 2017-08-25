@@ -48,6 +48,7 @@
     <Compile Include="ClientSettings.cs" />
     <Compile Include="Events\ChannelTopicEventArgs.cs" />
     <Compile Include="Events\ChannelEventArgs.cs" />
+    <Compile Include="Events\ChannelTopicWhoTimeEventArgs.cs" />
     <Compile Include="Events\ChannelUserEventArgs.cs" />
     <Compile Include="Events\ErrorEventArgs.cs" />
     <Compile Include="Events\ErrorReplieEventArgs.cs" />

@@ -36,6 +36,7 @@ namespace ChatSharp.Handlers
             client.SetHandler("PART", ChannelHandlers.HandlePart);
             client.SetHandler("331", ChannelHandlers.HandleGetEmptyTopic);
             client.SetHandler("332", ChannelHandlers.HandleGetTopic);
+            client.SetHandler("333", ChannelHandlers.HandleTopicWhoTime);//RPL_TOPICWHOTIME http://www.tracyexpressbaseball.com/mishbox/reference/rawhelp3.htm#raw333 example: 333 blink #kif psycon!~psy@comm.wurbz.de 1500138059
             client.SetHandler("353", ChannelHandlers.HandleUserListPart);
             client.SetHandler("366", ChannelHandlers.HandleUserListEnd);
             client.SetHandler("KICK", ChannelHandlers.HandleKick);
