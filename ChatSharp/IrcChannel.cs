@@ -44,11 +44,6 @@ namespace ChatSharp
         /// The users count in this channel. It is # visible parameter of the IRC server's reply 322 RPL_LIST "channel # visible :topic". See rfc1459#section-6.2  Command responses.
         /// </summary>
         public uint UsersCount { get; private set; }
-        /// <summary>
-        /// Users in this channel, grouped by mode. Users with no special mode are grouped under null.
-        /// </summary>
-        public Dictionary<char?, UserPoolView> UsersByMode { get; set; }
-
         internal IrcChannel(IrcClient client, string name)
         {
             Client = client;

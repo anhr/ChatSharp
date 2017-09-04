@@ -12,7 +12,7 @@ namespace ChatSharp
         internal IrcUser()
         {
             Channels = new ChannelCollection();
-            ChannelModes = new Dictionary<IrcChannel, char?>();
+            ChannelModes = new ChannelsModes();
         }
 
         /// <summary>
@@ -113,9 +113,52 @@ namespace ChatSharp
         public ChannelCollection Channels { get; set; }
 
         /// <summary>
+        /// The channel modes class.
+        /// </summary>
+        public class Modes : List<char?>
+        {
+            new void Add(char? c)
+            {
+                if (!base.Contains(c))
+                    base.Add(c);
+            }
+
+            /// <summary>
+            /// Get user's channel mode.
+            /// </summary>
+            public char? Mode
+            {
+                get
+                {
+                    if (this.Contains('o'))
+                        return 'o';
+                    if (this.Count == 0)
+                        return null;
+                    return this[0];
+                }
+            }
+        }
+        /// <summary>
+        /// The user's channel modes class.
+        /// </summary>
+        public class ChannelsModes : Dictionary<IrcChannel, Modes>
+        {
+            /// <summary>
+            /// Add user's channel mode.
+            /// </summary>
+            public void Add(IrcChannel IrcChannel, char? c)
+            {
+                if (!this.ContainsKey(IrcChannel))
+                    base.Add(IrcChannel, new Modes());
+                Modes modes = base[IrcChannel];
+                modes.Add(c);
+            }
+        }
+
+        /// <summary>
         /// The user's channel modes.
         /// </summary>
-        public Dictionary<IrcChannel, char?> ChannelModes { get; internal set; }
+        public ChannelsModes ChannelModes { get; internal set; }
 
         /// <summary>
         /// This user's hostmask (nick!user@host).

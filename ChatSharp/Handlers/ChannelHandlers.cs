@@ -89,7 +89,7 @@ namespace ChatSharp.Handlers
                 user.ChannelModes.Add(channel, mode);
             }
             else
-                user.ChannelModes[channel] = mode;
+                user.ChannelModes[channel].Add(mode);
             var request = client.RequestManager.PeekOperation("NAMES");
             if (request == null)
                 request = client.RequestManager.PeekOperation("NAMES " + message.Parameters[2]);

@@ -21,11 +21,18 @@ namespace ChatSharp.Events
         /// </summary>
         public string Change { get; set; }
 
-        internal ModeChangeEventArgs(string target, IrcUser user, string change)
+        /// <summary>
+        /// Nickname who gives or takes the status of a channel such as o or v
+        /// or Nickname/ hostmask  which adds or removes a channel ban
+        /// </summary>
+        public string Parameter { get; set; }
+
+        internal ModeChangeEventArgs(string target, IrcUser user, string change, string parameter = "")
         {
             Target = target;
             User = user;
             Change = change;
+            Parameter = parameter;
         }
     }
 }

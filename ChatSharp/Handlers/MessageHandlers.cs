@@ -78,6 +78,7 @@ namespace ChatSharp.Handlers
             client.SetHandler("407", ErrorHandlers.HandleError);//ERR_TOOMANYTARGETS "<target> :Duplicate recipients. No message \
             client.SetHandler("421", ErrorHandlers.HandleError);//ERR_UNKNOWNCOMMAND "<command> :Unknown command" - Returned to a registered client to indicate that the command sent is unknown by the server.
             client.SetHandler("437", ErrorHandlers.HandleError);//ERR_UNAVAILRESOURCE	RFC2812	<nick/channel/service> :<reason>	Return when the target is unable to be reached temporarily, eg. a delay mechanism in play, or a service being offline
+            client.SetHandler("441", ErrorHandlers.HandleError);//ERR_USERNOTINCHANNEL	RFC1459	<nick> <channel> :<reason>	Returned by the server to indicate that the target user of the command is not on the given channel
             client.SetHandler("442", ErrorHandlers.HandleError);//ERR_NOTONCHANNEL "<channel> :You're not on that channel"
             client.SetHandler("451", ErrorHandlers.HandleError);//ERR_NOTREGISTERED ":You have not registered" - Returned by the server to indicate that the client must be registered before the server will allow it to be parsed in detail.
             client.SetHandler("455", ErrorHandlers.HandleError);//ERR_HOSTILENAME
@@ -194,6 +195,7 @@ namespace ChatSharp.Handlers
             if (target.StartsWith("#"))
             {
                 var channel = client.Channels[target];
+                IrcUser userPrefix = new IrcUser(message.Prefix);
                 foreach (char c in mode)
                 {
                     if (c == '+')
@@ -211,40 +213,31 @@ namespace ChatSharp.Handlers
                     // TODO: Support the ones here that aren't done properly
                     if (client.ServerInfo.SupportedChannelModes.ParameterizedSettings.Contains(c))
                     {
-                        client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix), 
+                        client.OnModeChanged(new ModeChangeEventArgs(channel.Name, userPrefix, 
                             (add ? "+" : "-") + c + " " + message.Parameters[i++]));
                     }
                     else if (client.ServerInfo.SupportedChannelModes.ChannelLists.Contains(c))
                     {
-                        client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix), 
+                        client.OnModeChanged(new ModeChangeEventArgs(channel.Name, userPrefix, 
                             (add ? "+" : "-") + c + " " + message.Parameters[i++]));
                     }
                     else if (client.ServerInfo.SupportedChannelModes.ChannelUserModes.Contains(c))
                     {
-                        if (channel.UsersByMode == null)
-                            channel.UsersByMode = new System.Collections.Generic.Dictionary<char?, UserPoolView>();
-                        if (!channel.UsersByMode.ContainsKey(c))
+                        if (message.Parameters.Count() > i)
                         {
-                            channel.UsersByMode.Add(c,
-                                new UserPoolView(channel.Users.Where(u =>
-                                {
-                                    if (!u.ChannelModes.ContainsKey(channel))
-                                        u.ChannelModes.Add(channel, null);
-                                    return u.ChannelModes[channel] == c;
-                                })));
+                            IrcUser.ChannelsModes ChannelModes = channel.Users[message.Parameters[i]].ChannelModes;
+                            if (ChannelModes.ContainsKey(channel))
+                            {
+                                IrcUser.Modes modes = ChannelModes[channel];
+                                if (add)
+                                    modes.Add(c);
+                                else modes.Remove(c);
+                            }
+                            else if (add)
+                                ChannelModes.Add(channel, (char?)c);
+                            client.OnModeChanged(new ModeChangeEventArgs(channel.Name, userPrefix, 
+                                (add ? "+" : "-") + c + " " + message.Parameters[i]));
                         }
-                        var user = new IrcUser(message.Parameters[2]);
-                        if (add)
-                        {
-                            if (!channel.UsersByMode[c].Contains(user.Nick))
-                                user.ChannelModes[channel] = c;
-                        }
-                        else
-                        {
-                            if (channel.UsersByMode[c].Contains(user.Nick))
-                                user.ChannelModes[channel] = null;
-                        }
-                        client.OnModeChanged(new ModeChangeEventArgs(channel.Name, user, (add ? "+" : "-") + c));
                     }
                     if (client.ServerInfo.SupportedChannelModes.Settings.Contains(c))
                     {
@@ -255,8 +248,7 @@ namespace ChatSharp.Handlers
                         }
                         else
                             channel.Mode = channel.Mode.Replace(c.ToString(), string.Empty);
-                        client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix), 
-                            (add ? "+" : "-") + c));
+                        client.OnModeChanged(new ModeChangeEventArgs(channel.Name, userPrefix, (add ? "+" : "-") + c));
                     }
                 }
                 if (message.Command == "324")
