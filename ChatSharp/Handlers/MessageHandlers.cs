@@ -51,8 +51,10 @@ namespace ChatSharp.Handlers
             client.SetHandler("317", UserHandlers.HandleWhoIsIdle);
             client.SetHandler("318", UserHandlers.HandleWhoIsEnd);
             client.SetHandler("319", UserHandlers.HandleWhoIsChannels);
-            client.SetHandler("334", UserHandlers.HandleWhoIsLocation);//Users location
             client.SetHandler("330", UserHandlers.HandleWhoIsLoggedInAs);
+            client.SetHandler("334", UserHandlers.HandleWhoIsLocation);//Users location
+            client.SetHandler("338", UserHandlers.HandleWhoIsActually);//RPL_WHOISACTUALLY <source> 338 <target> <nick> <user>@<host> <ip> :Actual user@host, Actual IP
+                                                                       //example: ":NuclearFallout.WA.US.GameSurge.net 338 blink2 blink2 ~blink2@95.188.70.66 95.188.70.66 :Actual user@host, Actual IP"
 
             // Listing handlers
             client.SetHandler("367", ListingHandlers.HandleBanListPart);

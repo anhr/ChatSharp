@@ -60,5 +60,9 @@ namespace ChatSharp
         /// The error of an IRC WHOIS query. For example error = "401" ERR_NOSUCHNICK "nickname :No such nick/channel"
         /// </summary>
         public string error { get; set; }
+        /// <summary>
+        /// RPL_WHOISACTUALLY &lt;source&gt; 338 &lt;target&gt; &lt;nick&gt; &lt;user&gt;@&lt;host&gt; &lt;ip&gt; :Actual user@host, Actual IP
+        /// </summary>
+        public System.Collections.Generic.Dictionary<string, string> Actually { get; set; }
     }
 }

@@ -67,6 +67,27 @@ namespace ChatSharp.Handlers
             whois.Location = message.Parameters[3];
         }
 
+        /// <summary>
+        /// RPL_WHOISACTUALLY &lt;source&gt; 338 &lt;target&gt; &lt;nick&gt; &lt;user&gt;@&lt;host&gt; &lt;ip&gt; :Actual user@host, Actual IP
+        /// </summary>
+        public static void HandleWhoIsActually(IrcClient client, IrcMessage message)
+        {
+            var whois = PeekWhoIsOperation(client, message);
+            if (whois == null)
+                return;
+            int index = 2;
+            foreach (var item in
+                new System.Text.RegularExpressions.Regex("(.*), (.*)").Split(message.Parameters[message.Parameters.Count() - 1]))
+            {
+                if (item == "")
+                    continue;
+                if(whois.Actually == null)
+                    whois.Actually = new System.Collections.Generic.Dictionary<string, string>();
+                whois.Actually.Add(item, message.Parameters[index]);
+                index++;
+            }
+        }
+
         public static void HandleWhoIsServer(IrcClient client, IrcMessage message)
         {
             var whois = PeekWhoIsOperation(client, message);
