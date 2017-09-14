@@ -18,16 +18,14 @@ namespace ChatSharp.Handlers
                         ((WhoIs)requestOperation.State).error = message.Command;
                     break;
                 case "421"://ERR_UNKNOWNCOMMAND "<command> :Unknown command" - Returned to a registered client to indicate that the command sent is unknown by the server.
-                    if (message.Parameters[1] == "NickServ")
+                    string nickServ = "NickServ";
+                    if (message.Parameters[1] != nickServ)
+                        break;
+                    RequestOperation requestOperationNickServ = client.RequestManager.DequeueOperation(nickServ);
+                    if (requestOperationNickServ != null)
                     {
-                        if (!string.IsNullOrEmpty(client.User.NSPassword))
-                        {
-                            RequestOperation requestOperationNickServ = client.RequestManager.DequeueOperation("NickServ");
-                            if (requestOperationNickServ == null)
-                                break;
-                            client.SendRawMessage("privmsg NickServ {0}", ((ChatSharp.Handlers.UserHandlers.NickServState)(requestOperationNickServ.State)).Arguments);
-                            return;
-                        }
+                        client.SendRawMessage("privmsg " + nickServ + " {0}", requestOperationNickServ.State);
+                        return;
                     }
                     break;
             }

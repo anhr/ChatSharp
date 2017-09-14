@@ -216,20 +216,50 @@ namespace ChatSharp
             }));
             SendRawMessage("LIST {0} {1}", channels, server);
         }
-        /// <summary>
-        /// NickServ Registering Nicknames. http://wiki.foonetic.net/wiki/Nickserv_Commands#Registering_Nicknames
-        /// </summary>
-        /// <param name="pass">NickServ password</param>
-        /// <param name="email">An email containing an authentication code will be sent to the specified email address.</param>
-        public void NSRegister(string pass, string email)
+        private void NSCommand(string command)
         {
-            SendRawMessage("NickServ {0}", "REGISTER " + pass + " " + email);
+            string message = "NickServ";
+            RequestManager.QueueOperation(message, new RequestOperation(command, ro =>
+            {
+                var c = (string)ro.State;
+            }));
+            SendRawMessage(message + " " + command);
         }
         /// <summary>
-        /// Names message. https://tools.ietf.org/html/rfc1459#section-4.2.5
+        /// NickServ Registering Nicknames.
+        /// <param name="pass">NickServ password</param>
+        /// <param name="email">An email containing an authentication code will be sent to the specified email address.</param>
         /// </summary>
-        /// <param name="channels">Comma separated channels list. If  the channels  parameter  is  used, specifies which channel(s) to return information about if valid.</param>
-        /// <param name="callback">Called when a IRC server's 353 RPL_NAMREPLY "&lt;channel&gt; :[[@|+]&lt;nick&gt; [[@|+]&lt;nick&gt; [...]]]" response to a NAMES message.</param>
+        /// <remarks>http://wiki.foonetic.net/wiki/Nickserv_Commands#Registering_Nicknames</remarks>
+        public void NSRegister(string pass, string email)
+        {
+            this.NSCommand("REGISTER " + pass + " " + email);
+        }
+        /// <summary>
+        /// NickServ Registering Nicknames. 
+        /// <para><param name="pass">pass: NickServ password</param></para>
+        /// </summary>
+        /// <remarks>http://wiki.foonetic.net/wiki/Nickserv_Commands#Identifying_.26_Retrieving_a_password</remarks>
+        public void NSIdentify(string pass)
+        {
+            this.NSCommand("IDENTIFY " + pass);
+        }
+        /// <summary>
+        /// NickServ Drop a Nickname.
+        /// <para><param name="nick">nick: nickname you will be de-registering it from NickServ</param></para>
+        /// <para><param name="pass">pass: NickServ password</param></para>
+        /// </summary>
+        /// <remarks>http://wiki.foonetic.net/wiki/Nickserv_Commands#Drop_a_Nickname</remarks>
+        public void NSDrop(string nick, string pass)
+        {
+            this.NSCommand("DROP " + nick + " " + pass);
+        }
+        /// <summary>
+        /// Names message.
+        /// <para name="channels">channels: Comma separated channels list. If  the channels  parameter  is  used, specifies which channel(s) to return information about if valid.</para>
+        /// <para name="callback">callback: Called when a IRC server's 353 RPL_NAMREPLY "&lt;channel&gt; :[[@|+]&lt;nick&gt; [[@|+]&lt;nick&gt; [...]]]" response to a NAMES message.</para>
+        /// </summary>
+        /// <remarks>https://tools.ietf.org/html/rfc1459#section-4.2.5</remarks>
         public void Names(string channels = null,
             Action<NamesState> callback = null)
         {
