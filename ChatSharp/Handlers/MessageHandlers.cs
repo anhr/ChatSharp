@@ -9,6 +9,8 @@ namespace ChatSharp.Handlers
         public static void RegisterDefaultHandlers(IrcClient client)
         {
             //All IRS replies https://www.alien.net.au/irc/irc2numerics.html
+            //rfc1459 https://tools.ietf.org/html/rfc1459 https://www.rfc-editor.org/rfc/rfc1459.txt
+            //rfc2812 https://tools.ietf.org/html/rfc2812 https://www.rfc-editor.org/rfc/rfc2812.txt
 
             // General
             client.SetHandler("PING", HandlePing);
@@ -68,7 +70,7 @@ namespace ChatSharp.Handlers
 
             // Server handlers
             client.SetHandler("004", ServerHandlers.HandleMyInfo);
-            client.SetHandler("005", ServerHandlers.HandleISupport);
+            client.SetHandler("005", ServerHandlers.HandleISupport);//RPL_BOUNCE RFC2812 :Try server <server_name>, port <port_number>	Sent by the server to a user to suggest an alternative server, sometimes used when the connection is refused because the server is already full. Also known as RPL_SLINE (AustHex), and RPL_REDIR.
 
             // Error replies rfc1459 6.1
             client.SetHandler("401", ErrorHandlers.HandleError);//ERR_NOSUCHNICK "<nickname> :No such nick/channel"
