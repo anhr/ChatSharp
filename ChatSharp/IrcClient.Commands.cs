@@ -219,6 +219,7 @@ namespace ChatSharp
         private void NSCommand(string command)
         {
             string message = "NickServ";
+            RequestManager.DequeueOperation(message);
             RequestManager.QueueOperation(message, new RequestOperation(command, ro =>
             {
                 var c = (string)ro.State;
@@ -243,6 +244,16 @@ namespace ChatSharp
         public void NSIdentify(string pass)
         {
             this.NSCommand("IDENTIFY " + pass);
+        }
+
+        /// <summary>
+        /// If you forgot your password you may use the SENDPASS command from NickServ to have a key sent to the email address corresponding to the specified nickname, that can be used to set a new password using SETPASS.
+        /// </summary>
+        /// <param name="nick">nickname</param>
+        /// <remarks>http://wiki.foonetic.net/wiki/Nickserv_Commands#Identifying_.26_Retrieving_a_password</remarks>
+        public void NSSendPass(string nick)
+        {
+            this.NSCommand("SENDPASS " + nick);
         }
         /// <summary>
         /// NickServ Drop a Nickname.
