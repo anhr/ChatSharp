@@ -92,18 +92,18 @@ namespace ChatSharp.Handlers
 
         public static void HandleMyInfo(IrcClient client, IrcMessage message)
         {
-            // 004 sendak.freenode.net ircd-seven-1.1.3 DOQRSZaghilopswz CFILMPQbcefgijklmnopqrstvz bkloveqjfI
-            // TODO: Figure out how to properly handle this message
+            // 004 RPL_MYINFO RFC2812 "<servername> <version> <available user modes> < available channel modes> "
+            // example: 004 sendak.freenode.net ircd-seven-1.1.3 DOQRSZaghilopswz CFILMPQbcefgijklmnopqrstvz bkloveqjfI
+            // available user modes: https://tools.ietf.org/html/rfc1459#section-4.2.3.2 and https://tools.ietf.org/html/rfc2812#section-3.1.5
+            // available channel modes: https://tools.ietf.org/html/rfc1459#section-4.2.3.1
             if (client.ServerInfo == null)
                 client.ServerInfo = new ServerInfo();
-            if (message.Parameters.Length >= 5)
-            {
-                foreach (var c in message.Parameters[4])
-                {
-                    if (!client.ServerInfo.SupportedChannelModes.ChannelUserModes.Contains(c))
-                        client.ServerInfo.SupportedChannelModes.ChannelUserModes += c.ToString();
-                }
-            }
+#if DEBUG
+            if (client.ServerInfo.myInfo != null)
+                System.Diagnostics.Trace.Fail("Duplicate client.ServerInfo.myInfo");
+#endif
+            client.ServerInfo.myInfo = new ServerInfo.MyInfo(message);
+            client.OnMyInfoRecieved(new MyInfoEventArgs(client.ServerInfo.myInfo));
         }
     }
 }

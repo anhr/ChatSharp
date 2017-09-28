@@ -69,7 +69,7 @@ namespace ChatSharp.Handlers
             client.SetHandler("729", ListingHandlers.HandleQuietListEnd);
 
             // Server handlers
-            client.SetHandler("004", ServerHandlers.HandleMyInfo);
+            client.SetHandler("004", ServerHandlers.HandleMyInfo);//RPL_MYINFO RFC2812 "<servername> <version> <available user modes> < available channel modes> "
             client.SetHandler("005", ServerHandlers.HandleISupport);//RPL_BOUNCE RFC2812 :Try server <server_name>, port <port_number>	Sent by the server to a user to suggest an alternative server, sometimes used when the connection is refused because the server is already full. Also known as RPL_SLINE (AustHex), and RPL_REDIR.
 
             // Error replies rfc1459 6.1

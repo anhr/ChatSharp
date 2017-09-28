@@ -63,6 +63,7 @@ namespace ChatSharp
         /// <summary>
         /// RPL_WHOISACTUALLY &lt;source&gt; 338 &lt;target&gt; &lt;nick&gt; &lt;user&gt;@&lt;host&gt; &lt;ip&gt; :Actual user@host, Actual IP
         /// </summary>
+        /// <remarks>Use irc.efnet.org IRC server for testing</remarks>
         public System.Collections.Generic.Dictionary<string, string> Actually { get; set; }
     }
 }

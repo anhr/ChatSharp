@@ -96,6 +96,62 @@ namespace ChatSharp
         public int? MaxAwayLength { get; set; }
 
         /// <summary>
+        /// RPL_MYINFO server reply
+        /// </summary>
+        /// <remarks>See RFC2812 5.1 Command responses https://tools.ietf.org/html/rfc2812#section-5.1 for details</remarks>
+        public class MyInfo
+        {
+            /// <summary>
+            /// Save of the RPL_MYINFO server reply
+            /// </summary>
+            internal MyInfo(IrcMessage message)
+            {
+                if (message.Command != "004")
+                {
+                    System.Diagnostics.Trace.Fail("message.Command: " + message.Command + " != 004");
+                    return;
+                }
+                if (message.Parameters.Length < 5)
+                {
+                    System.Diagnostics.Trace.Fail("message.Parameters.Length: " + message.Parameters.Length + " != 5");
+                    return;
+                }
+                Servername = message.Parameters[1];
+                Version = message.Parameters[2];
+                AvailableUserModes = message.Parameters[3];
+                AvailableChannelModes = message.Parameters[4];
+            }
+            /// <summary>
+            /// Server name
+            /// </summary>
+            public string Servername { get; private set; }
+
+            /// <summary>
+            /// version
+            /// </summary>
+            public string Version { get; private set; }
+
+            /// <summary>
+            /// Available user modes that affect either how the client is seen by others or what 'extra' messages the client is sent.
+            /// </summary>
+            /// <remarks>See  RFC1459 4.2.3.2 User modes https://tools.ietf.org/html/rfc1459#section-4.2.3.2
+            /// and RFC2812 3.1.5 User mode message https://tools.ietf.org/html/rfc2812#section-3.1.5 for more details</remarks>
+            public string AvailableUserModes { get; private set; }
+
+            /// <summary>
+            /// Available channel modes that channel operators may change the characteristics of `their' channel.
+            /// It is also required that servers be able to change channel modes so that channel operators may be created.
+            /// </summary>
+            /// <remarks>See RFC1459 4.2.3.1 Channel modes https://tools.ietf.org/html/rfc1459#section-4.2.3.1 for details</remarks>
+            public string AvailableChannelModes { get; private set; }
+        }
+
+        /// <summary>
+        /// RPL_MYINFO server reply
+        /// </summary>
+        public MyInfo myInfo { get; set; }
+
+        /// <summary>
         /// Modes a server supports that are applicable to channels.
         /// </summary>
         public class ChannelModes

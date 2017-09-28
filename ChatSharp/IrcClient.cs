@@ -599,6 +599,14 @@ namespace ChatSharp
             if (ServerInfoRecieved != null) ServerInfoRecieved(this, e);
         }
         /// <summary>
+        /// Occurs when we receive RPL_MYINFO server reply.
+        /// </summary>
+        public event EventHandler<MyInfoEventArgs> MyInfoRecieved;
+        internal void OnMyInfoRecieved(MyInfoEventArgs e)
+        {
+            if (MyInfoRecieved != null) MyInfoRecieved(this, e);
+        }
+        /// <summary>
         /// Occurs when a user is kicked.
         /// </summary>
         public event EventHandler<KickEventArgs> UserKicked;

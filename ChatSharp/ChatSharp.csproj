@@ -57,6 +57,7 @@
     <Compile Include="Events\ListEventArgs.cs" />
     <Compile Include="Events\ListStartEventArgs.cs" />
     <Compile Include="Events\ModeChangeEventArgs.cs" />
+    <Compile Include="Events\MyInfoEventArgs.cs" />
     <Compile Include="Events\PrivateMessageEventArgs.cs" />
     <Compile Include="Events\RawMessageEventArgs.cs" />
     <Compile Include="Events\ServerMOTDEventArgs.cs" />
