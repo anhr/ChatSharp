@@ -8,7 +8,7 @@ namespace ChatSharp.Handlers
     {
         public static void RegisterDefaultHandlers(IrcClient client)
         {
-            //All IRS replies https://www.alien.net.au/irc/irc2numerics.html
+            //All IRC replies https://www.alien.net.au/irc/irc2numerics.html
             //rfc1459 https://tools.ietf.org/html/rfc1459 https://www.rfc-editor.org/rfc/rfc1459.txt
             //rfc2812 https://tools.ietf.org/html/rfc2812 https://www.rfc-editor.org/rfc/rfc2812.txt
 
@@ -112,6 +112,12 @@ namespace ChatSharp.Handlers
             client.SetHandler("321", ListHandlers.HandleListStart);//RPL_LISTSTART "Channel :Users  Name"
             client.SetHandler("322", ListHandlers.HandleList);//RPL_LIST "<channel> <# visible> :<topic>"
             client.SetHandler("323", ListHandlers.HandleListEnd);//RPL_LISTEND ":End of /LIST"
+
+            //help replies
+            //RatBox: http://www.ratbox.org/
+            client.SetHandler("704", HandleHelp);//RPL_HELPSTART	RatBox	<command> :<text>	Start of HELP command output
+            client.SetHandler("705", HandleHelp);//RPL_HELPTXT	RatBox	<command> :<text>	Output from HELP command
+            client.SetHandler("706", HandleHelp);//RPL_ENDOFHELP	RatBox	<command> :<text>	End of HELP command output
         }
 
         public static void HandleNick(IrcClient client, IrcMessage message)
@@ -156,6 +162,11 @@ namespace ChatSharp.Handlers
         public static void HandleNotice(IrcClient client, IrcMessage message)
         {
             client.OnNoticeRecieved(new IrcNoticeEventArgs(message));
+        }
+
+        public static void HandleHelp(IrcClient client, IrcMessage message)
+        {
+            client.OnHelpRecieved(new HelpEventArgs(message));
         }
 
         public static void HandlePrivmsg(IrcClient client, IrcMessage message)

@@ -478,6 +478,14 @@ namespace ChatSharp
             if (NoticeRecieved != null) NoticeRecieved(this, e);
         }
         /// <summary>
+        /// Occurs when a help recieved.
+        /// </summary>
+        public event EventHandler<HelpEventArgs> HelpRecieved;
+        internal void OnHelpRecieved(HelpEventArgs e)
+        {
+            if (HelpRecieved != null) HelpRecieved(this, e);
+        }
+        /// <summary>
         /// Occurs when the server has sent us part of the MOTD.
         /// </summary>
         public event EventHandler<ServerMOTDEventArgs> MOTDPartRecieved;
