@@ -88,6 +88,7 @@ namespace ChatSharp.Handlers
             client.SetHandler("455", ErrorHandlers.HandleError);//ERR_HOSTILENAME
             client.SetHandler("461", ErrorHandlers.HandleError);//ERR_NEEDMOREPARAMS "<command> :Not enough parameters" - Returned by the server by numerous commands to indicate to the client that it didn't supply enough parameters.
             client.SetHandler("465", ErrorHandlers.HandleError);//ERR_YOUREBANNEDCREEP ":You are banned from this server"
+            client.SetHandler("470", ErrorHandlers.HandleError);//ERR_LINKCHANNEL automatically redirected to another channel. or ERR_KICKEDFROMCHAN
             client.SetHandler("471", ErrorHandlers.HandleError);//ERR_CHANNELISFULL "<channel> :Cannot join channel (+l)"
             client.SetHandler("472", ErrorHandlers.HandleError);//ERR_UNKNOWNMODE "<char> :is unknown mode char to me"
             client.SetHandler("473", ErrorHandlers.HandleError);//ERR_INVITEONLYCHAN "<channel> :Cannot join channel (+i)"
