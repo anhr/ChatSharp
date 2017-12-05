@@ -45,6 +45,7 @@ namespace ChatSharp.Handlers
             client.SetHandler("TOPIC", ChannelHandlers.HandleTopic);
 
             // User handlers
+            client.SetHandler("301", UserHandlers.HandleWhoIsOther);//RPL_AWAY	RFC1459	<nick> :<message>	Used in reply to a command directed at a user who is marked as away
             client.SetHandler("307", UserHandlers.HandleWhoIsRegNick);//RPL_WHOISREGNICK example: :java.webchat.org 307 bonalink aro 179751 :is using a registered nickname.
             client.SetHandler("309", UserHandlers.HandleWhoIsNickTrace);//RPL_NICKTRACE example: :java.webchat.org 309 bonalink aro en :Preferred language: English
             client.SetHandler("311", UserHandlers.HandleWhoIsUser);
@@ -57,6 +58,8 @@ namespace ChatSharp.Handlers
             client.SetHandler("334", UserHandlers.HandleWhoIsLocation);//Users location
             client.SetHandler("338", UserHandlers.HandleWhoIsActually);//RPL_WHOISACTUALLY <source> 338 <target> <nick> <user>@<host> <ip> :Actual user@host, Actual IP
                                                                        //example: ":NuclearFallout.WA.US.GameSurge.net 338 blink2 blink2 ~blink2@95.188.70.66 95.188.70.66 :Actual user@host, Actual IP"
+            client.SetHandler("671", UserHandlers.HandleWhoIsOther);//RPL_WHOISSECURE	KineIRCd	<nick> <type> [:<info>]	Reply to WHOIS command - Returned if the target is connected securely, eg. type may be TLSv1, or SSLv2 etc. If the type is unknown, a '*' may be used.
+                                                                        //example: 671 blink2 dvim :is using a secure connection
 
             // Listing handlers
             client.SetHandler("367", ListingHandlers.HandleBanListPart);

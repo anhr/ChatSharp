@@ -65,5 +65,10 @@ namespace ChatSharp
         /// </summary>
         /// <remarks>Use irc.efnet.org IRC server for testing</remarks>
         public System.Collections.Generic.Dictionary<string, string> Actually { get; set; }
+        /// <summary>
+        /// A list of other WhoIs handlers
+        /// </summary>
+        /// <remarks>Example: :wilhelm.freenode.net 671 blink2 dvim :is using a secure connection</remarks>
+        public System.Collections.Generic.List<string> Other { get; set; }
     }
 }

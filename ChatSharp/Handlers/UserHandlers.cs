@@ -125,6 +125,16 @@ namespace ChatSharp.Handlers
             whois.Channels = whois.Channels.Concat(channels).ToArray();
         }
 
+        public static void HandleWhoIsOther(IrcClient client, IrcMessage message)
+        {
+            var whois = PeekWhoIsOperation(client, message);
+            if (whois == null)
+                return;
+            if (whois.Other == null)
+                whois.Other = new System.Collections.Generic.List<string>();
+            whois.Other.Add(message.Parameters[2]);
+        }
+
         public static void HandleWhoIsEnd(IrcClient client, IrcMessage message)
         {
             var request = client.RequestManager.DequeueOperation("WHOIS " + message.Parameters[1]);
