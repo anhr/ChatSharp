@@ -234,6 +234,19 @@ namespace ChatSharp.Handlers
                     }
                     else if (client.ServerInfo.SupportedChannelModes.ChannelLists.Contains(c))
                     {
+                        if (message.Parameters.Count() > i)
+                        {
+                            IrcUser.ChannelsModes ChannelModes = channel.Users[message.Parameters[i]].ChannelModes;
+                            if (ChannelModes.ContainsKey(channel))
+                            {
+                                IrcUser.Modes modes = ChannelModes[channel];
+                                if (add)
+                                    modes.Add(c);
+                                else modes.Remove(c);
+                            }
+                            else if (add)
+                                ChannelModes.Add(channel, (char?)c);
+                        }
                         client.OnModeChanged(new ModeChangeEventArgs(channel.Name, userPrefix, 
                             (add ? "+" : "-") + c + " " + message.Parameters[i++]));
                     }
