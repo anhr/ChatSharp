@@ -58,6 +58,9 @@ namespace ChatSharp.Handlers
             client.SetHandler("334", UserHandlers.HandleWhoIsLocation);//Users location
             client.SetHandler("338", UserHandlers.HandleWhoIsActually);//RPL_WHOISACTUALLY <source> 338 <target> <nick> <user>@<host> <ip> :Actual user@host, Actual IP
                                                                        //example: ":NuclearFallout.WA.US.GameSurge.net 338 blink2 blink2 ~blink2@95.188.70.66 95.188.70.66 :Actual user@host, Actual IP"
+            client.SetHandler("378", UserHandlers.HandleWhoIsOther);//RPL_WHOISHOST Unreal
+                                                                    //RPL_BANEXPIRED	aircd
+                                                                    //RPL_MOTD AustHex     Used by AustHex to 'force' the display of the MOTD, however is considered obsolete due to client/ script awareness & ability to Also see #372.
             client.SetHandler("671", UserHandlers.HandleWhoIsOther);//RPL_WHOISSECURE	KineIRCd	<nick> <type> [:<info>]	Reply to WHOIS command - Returned if the target is connected securely, eg. type may be TLSv1, or SSLv2 etc. If the type is unknown, a '*' may be used.
                                                                         //example: 671 blink2 dvim :is using a secure connection
 
