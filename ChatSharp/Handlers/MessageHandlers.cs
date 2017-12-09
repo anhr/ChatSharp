@@ -242,16 +242,20 @@ namespace ChatSharp.Handlers
                     {
                         if (message.Parameters.Count() > i)
                         {
-                            IrcUser.ChannelsModes ChannelModes = channel.Users[message.Parameters[i]].ChannelModes;
-                            if (ChannelModes.ContainsKey(channel))
+                            try
                             {
-                                IrcUser.Modes modes = ChannelModes[channel];
-                                if (add)
-                                    modes.Add(c);
-                                else modes.Remove(c);
+                                IrcUser.ChannelsModes ChannelModes = channel.Users[message.Parameters[i]].ChannelModes;
+                                if (ChannelModes.ContainsKey(channel))
+                                {
+                                    IrcUser.Modes modes = ChannelModes[channel];
+                                    if (add)
+                                        modes.Add(c);
+                                    else modes.Remove(c);
+                                }
+                                else if (add)
+                                    ChannelModes.Add(channel, (char?)c);
                             }
-                            else if (add)
-                                ChannelModes.Add(channel, (char?)c);
+                            catch (System.Collections.Generic.KeyNotFoundException) { }//User not found if you baning a user
                         }
                         client.OnModeChanged(new ModeChangeEventArgs(channel.Name, userPrefix, 
                             (add ? "+" : "-") + c + " " + message.Parameters[i++]));
