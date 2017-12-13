@@ -228,6 +228,7 @@ namespace ChatSharp
         }
         /// <summary>
         /// NickServ Registering Nicknames.
+        /// <param name="account">NickServ account</param>
         /// <param name="pass">NickServ password</param>
         /// <param name="email">An email containing an authentication code will be sent to the specified email address.</param>
         /// </summary>
