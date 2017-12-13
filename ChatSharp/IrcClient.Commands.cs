@@ -232,9 +232,9 @@ namespace ChatSharp
         /// <param name="email">An email containing an authentication code will be sent to the specified email address.</param>
         /// </summary>
         /// <remarks>http://wiki.foonetic.net/wiki/Nickserv_Commands#Registering_Nicknames</remarks>
-        public void NSRegister(string pass, string email)
+        public void NSRegister(string account, string pass, string email)
         {
-            this.NSCommand("REGISTER " + pass + " " + email);
+            this.NSCommand("REGISTER " + (account == null ? "" : account + " ") + pass + " " + email);
         }
         /// <summary>
         /// NickServ Registering Nicknames. 
