@@ -261,10 +261,22 @@ namespace ChatSharp
         /// <para><param name="nick">nick: nickname you will be de-registering it from NickServ</param></para>
         /// <para><param name="pass">pass: NickServ password</param></para>
         /// </summary>
-        /// <remarks>http://wiki.foonetic.net/wiki/Nickserv_Commands#Drop_a_Nickname</remarks>
+        /// <remarks>http://wiki.foonetic.net/wiki/Nickserv_Commands#Drop_a_Nickname
+        /// DROP is an unknown command for some IRC servers. Use UNREGISTER instead</remarks>
         public void NSDrop(string nick, string pass)
         {
             this.NSCommand("DROP " + nick + " " + pass);
+        }
+        /// <summary>
+        /// NickServ Unregister a Nickname.
+        /// <para><param name="pass">pass: NickServ password</param></para>
+        /// </summary>
+        /// <remarks>
+        /// UNREGISTER is an unknown command for some IRC servers. Use DROP instead
+        /// Connect to irc.gamesurge.net for testing of UNREGISTER command</remarks>
+        public void NSUnregister(string pass)
+        {
+            this.NSCommand("UNREGISTER " + pass);
         }
         /// <summary>
         /// Names message.
