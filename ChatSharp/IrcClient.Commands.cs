@@ -224,18 +224,7 @@ namespace ChatSharp
             {
                 var c = (string)ro.State;
             }));
-            SendRawMessage(message + " " + command);
-        }
-        /// <summary>
-        /// NickServ Registering Nicknames.
-        /// <param name="account">NickServ account</param>
-        /// <param name="pass">NickServ password</param>
-        /// <param name="email">An email containing an authentication code will be sent to the specified email address.</param>
-        /// </summary>
-        /// <remarks>http://wiki.foonetic.net/wiki/Nickserv_Commands#Registering_Nicknames</remarks>
-        public void NSRegister(string account, string pass, string email)
-        {
-            this.NSCommand("REGISTER " + (account == null ? "" : account + " ") + pass + " " + email);
+            SendRawMessage(message);
         }
         /// <summary>
         /// NickServ Registering Nicknames. 
@@ -245,38 +234,6 @@ namespace ChatSharp
         public void NSIdentify(string pass)
         {
             this.NSCommand("IDENTIFY " + pass);
-        }
-
-        /// <summary>
-        /// If you forgot your password you may use the SENDPASS command from NickServ to have a key sent to the email address corresponding to the specified nickname, that can be used to set a new password using SETPASS.
-        /// </summary>
-        /// <param name="nick">nickname</param>
-        /// <remarks>http://wiki.foonetic.net/wiki/Nickserv_Commands#Identifying_.26_Retrieving_a_password</remarks>
-        public void NSSendPass(string nick)
-        {
-            this.NSCommand("SENDPASS " + nick);
-        }
-        /// <summary>
-        /// NickServ Drop a Nickname.
-        /// <para><param name="nick">nick: nickname you will be de-registering it from NickServ</param></para>
-        /// <para><param name="pass">pass: NickServ password</param></para>
-        /// </summary>
-        /// <remarks>http://wiki.foonetic.net/wiki/Nickserv_Commands#Drop_a_Nickname
-        /// DROP is an unknown command for some IRC servers. Use UNREGISTER instead</remarks>
-        public void NSDrop(string nick, string pass)
-        {
-            this.NSCommand("DROP " + nick + " " + pass);
-        }
-        /// <summary>
-        /// NickServ Unregister a Nickname.
-        /// <para><param name="pass">pass: NickServ password</param></para>
-        /// </summary>
-        /// <remarks>
-        /// UNREGISTER is an unknown command for some IRC servers. Use DROP instead
-        /// Connect to irc.gamesurge.net for testing of UNREGISTER command</remarks>
-        public void NSUnregister(string pass)
-        {
-            this.NSCommand("UNREGISTER " + pass);
         }
         /// <summary>
         /// Names message.
