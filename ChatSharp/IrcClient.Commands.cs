@@ -224,7 +224,7 @@ namespace ChatSharp
             {
                 var c = (string)ro.State;
             }));
-            SendRawMessage(message);
+            SendRawMessage(message + " " + command);
         }
         /// <summary>
         /// NickServ Registering Nicknames. 
