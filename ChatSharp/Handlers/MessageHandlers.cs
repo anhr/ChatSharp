@@ -214,10 +214,10 @@ namespace ChatSharp.Handlers
             }
             // Handle change
             bool add = true;
+            IrcUser userPrefix = new IrcUser(message.Prefix);
             if (target.StartsWith("#"))
             {
                 var channel = client.Channels[target];
-                IrcUser userPrefix = new IrcUser(message.Prefix);
                 foreach (char c in mode)
                 {
                     if (c == '+')
@@ -301,14 +301,25 @@ namespace ChatSharp.Handlers
                 // TODO: Handle user modes other than ourselves?
                 foreach (char c in mode)
                 {
-                    if (add)
-                    {
-                        if (!client.User.Mode.Contains(c))
-                            client.User.Mode += c;
+                    switch (c) {
+                        case '+':
+                            add = true;
+                            if (!client.User.Mode.Contains(c))
+                                client.User.Mode += c;
+                            break;
+                        case '-': add = false; break;
+                        default:
+                            if (add)
+                            {
+                                if (!client.User.Mode.Contains(c))
+                                    client.User.Mode += c;
+                            }
+                            else
+                                client.User.Mode = client.User.Mode.Replace(c.ToString(), string.Empty);
+                            break;
                     }
-                    else
-                        client.User.Mode = client.User.Mode.Replace(c.ToString(), string.Empty);
                 }
+                client.OnModeChanged(new ModeChangeEventArgs(client.User.Nick, userPrefix, mode));
             }
         }
     }
