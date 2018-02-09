@@ -39,6 +39,17 @@ namespace ChatSharp
         {
             Channels.Remove(channel);
         }
+        internal void RemoveAll()
+        {
+            Channels.RemoveAll(ChannelCollection.RemoveConditions);
+        }
+        /// <summary>
+        /// Remove all items from channels list
+        /// </summary>
+        private static bool RemoveConditions(IrcChannel channel)
+        {
+            return true;
+        } 
         /// <summary>
         /// Join the specified channel. Only applicable for your own user.
         /// </summary>

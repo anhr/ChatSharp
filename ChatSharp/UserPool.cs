@@ -50,6 +50,17 @@ namespace ChatSharp
                 Users.Remove(this[nick]);
         }
 
+        internal void RemoveAll()
+        {
+            Users.RemoveAll(UserPool.RemoveConditions);
+        }
+        /// <summary>
+        /// Remove all items from users list
+        /// </summary>
+        private static bool RemoveConditions(IrcUser user)
+        {
+            return true;
+        }
         /// <summary>
         /// Returns true if any user in the pool matches this mask. Note that not all users
         /// in the user pool will be fully populated, even if you set ClientSettings.WhoIsOnJoin 
