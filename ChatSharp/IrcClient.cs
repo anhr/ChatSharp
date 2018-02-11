@@ -274,6 +274,7 @@ namespace ChatSharp
             }
             this.Channels.RemoveAll();
             this.Users.RemoveAll();
+            this.ServerInfo.myInfo = null;
             tcpClient.Close();
             OnDisconnected(new Events.ErrorReplyEventArgs((this.Message != null) ? this.Message : new IrcMessage(strError)));
         }
