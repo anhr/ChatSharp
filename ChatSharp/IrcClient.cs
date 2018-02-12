@@ -273,8 +273,11 @@ namespace ChatSharp
                 this.NetworkStream = null;
             }
             this.Channels.RemoveAll();
-            foreach (var User in this.Users)
+            foreach (IrcUser User in this.Users)
+            {
                 User.Channels.RemoveAll();
+                User.ChannelModes.Clear();
+            }
             this.ServerInfo.myInfo = null;
             tcpClient.Close();
             OnDisconnected(new Events.ErrorReplyEventArgs((this.Message != null) ? this.Message : new IrcMessage(strError)));
