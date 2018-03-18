@@ -51,6 +51,8 @@ namespace ChatSharp.Handlers
                             break;
                         case "NICKLEN":
                             client.ServerInfo.MaxNickLength = int.Parse(value);
+                            if(client.User.Nick.Length > client.ServerInfo.MaxNickLength)
+                                client.OnMaxNickLength(new MaxNickLengthEventArgs((int)client.ServerInfo.MaxNickLength));
                             break;
                         case "MAXLIST":
                             var limits = value.Split(',');

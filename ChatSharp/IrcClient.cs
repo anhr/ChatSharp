@@ -630,6 +630,14 @@ namespace ChatSharp
             if (UserKicked != null) UserKicked(this, e);
         }
         /// <summary>
+        /// Occurs when nick's length is great of max nick length ChatSharp.ServerInfo.MaxNickLength.
+        /// </summary>
+        public event EventHandler<MaxNickLengthEventArgs> MaxNickLength;
+        internal void OnMaxNickLength(MaxNickLengthEventArgs e)
+        {
+            if (MaxNickLength != null) MaxNickLength(this, e);
+        }
+        /// <summary>
         /// Occurs when a topic of a channel has changed.
         /// </summary>
         public event EventHandler<TopicEventArgs> Topic;
