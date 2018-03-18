@@ -46,6 +46,8 @@ namespace ChatSharp.Handlers
             {
                 client.WhoIs(client.User.Nick, whois =>
                     {
+                        if (whois.error == "401")
+                            return;//ERR_NOSUCHNICK "<nickname> :No such nick/channel"
                         client.User.Nick = whois.User.Nick;
                         client.User.User = whois.User.User;
                         client.User.Hostname = whois.User.Hostname;
