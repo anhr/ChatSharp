@@ -88,6 +88,8 @@ namespace ChatSharp
             if (!Channels.Contains(channel))
                 throw new InvalidOperationException("Client is not present in channel.");
             SendRawMessage("TOPIC {0} :{1}", channel, topic);
+            if (topic.Length >= this.ServerInfo.MaxTopicLength)
+                throw new TopicTooLongException((uint)this.ServerInfo.MaxTopicLength);
         }
 
         /// <summary>
