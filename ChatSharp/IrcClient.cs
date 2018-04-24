@@ -160,6 +160,11 @@ namespace ChatSharp
         }
 
         /// <summary>
+        /// The number of milliseconds to wait of connects the client to the specified IRC server
+        /// </summary>
+        public int timeoutConnectIRCServer { private get; set; } = 10000;
+
+        /// <summary>
         /// Connects to the IRC server.
         /// </summary>
         public async void ConnectAsync()
@@ -204,8 +209,8 @@ namespace ChatSharp
             TcpClient tcpClient = new TcpClient();
             try
             {
-                var tsk = tcpClient.ConnectAsync(ServerHostname, ServerPort);
-                tsk.Wait(10000);
+                System.Threading.Tasks.Task tsk = tcpClient.ConnectAsync(ServerHostname, ServerPort);
+                tsk.Wait(this.timeoutConnectIRCServer);
                 if (!tsk.IsCompleted)
                 {
                     OnNetworkError(new SocketErrorEventArgs(SocketError.TimedOut));
