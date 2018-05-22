@@ -273,9 +273,12 @@ namespace ChatSharp
             PingTimer.Dispose();
             if (this.NetworkStream != null)
             {
-                this.NetworkStream.Close();
-                this.NetworkStream.Dispose();
-                this.NetworkStream = null;
+                lock (this.NetworkStream)
+                {
+                    this.NetworkStream.Close();
+                    this.NetworkStream.Dispose();
+                    this.NetworkStream = null;
+                }
             }
             this.Channels.RemoveAll();
             foreach (IrcUser User in this.Users)
