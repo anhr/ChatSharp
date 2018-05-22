@@ -399,7 +399,7 @@ namespace ChatSharp
                 if (socketException != null)
                     OnNetworkError(new SocketErrorEventArgs(socketException.SocketErrorCode));
                 else
-                    throw;
+                    OnNetworkError(new SocketErrorEventArgs(SocketError.NoData));
                 return;
             }
             finally
