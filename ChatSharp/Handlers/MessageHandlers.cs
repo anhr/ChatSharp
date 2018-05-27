@@ -36,7 +36,7 @@ namespace ChatSharp.Handlers
             // Channel handlers
             client.SetHandler("JOIN", ChannelHandlers.HandleJoin);
             client.SetHandler("PART", ChannelHandlers.HandlePart);
-            client.SetHandler("331", ChannelHandlers.HandleGetEmptyTopic);
+            client.SetHandler("331", ChannelHandlers.HandleGetEmptyTopic);//RPL_NOTOPIC	RFC1459	<channel> :<info>	Response to TOPIC when no topic is set
             client.SetHandler("332", ChannelHandlers.HandleGetTopic);
             client.SetHandler("333", ChannelHandlers.HandleTopicWhoTime);//RPL_TOPICWHOTIME http://www.tracyexpressbaseball.com/mishbox/reference/rawhelp3.htm#raw333 example: 333 blink #kif psycon!~psy@comm.wurbz.de 1500138059
             client.SetHandler("353", ChannelHandlers.HandleUserListPart);
@@ -88,6 +88,9 @@ namespace ChatSharp.Handlers
             client.SetHandler("407", ErrorHandlers.HandleError);//ERR_TOOMANYTARGETS "<target> :Duplicate recipients. No message \
             client.SetHandler("421", ErrorHandlers.HandleError);//ERR_UNKNOWNCOMMAND "<command> :Unknown command" - Returned to a registered client to indicate that the command sent is unknown by the server.
             client.SetHandler("437", ErrorHandlers.HandleError);//ERR_UNAVAILRESOURCE	RFC2812	<nick/channel/service> :<reason>	Return when the target is unable to be reached temporarily, eg. a delay mechanism in play, or a service being offline
+            client.SetHandler("438", ErrorHandlers.HandleError);//ERR_NICKTOOFAST ircu Also known as ERR_NCHANGETOOFAST (Unreal, Ultimate)
+                                                                //ERR_DEAD	IRCnet
+                                                                //irc.webmaster.com :Your message contains potentially objectionable content and was not sent. Please rephrase and try sending again.
             client.SetHandler("441", ErrorHandlers.HandleError);//ERR_USERNOTINCHANNEL	RFC1459	<nick> <channel> :<reason>	Returned by the server to indicate that the target user of the command is not on the given channel
             client.SetHandler("442", ErrorHandlers.HandleError);//ERR_NOTONCHANNEL "<channel> :You're not on that channel"
             client.SetHandler("451", ErrorHandlers.HandleError);//ERR_NOTREGISTERED ":You have not registered" - Returned by the server to indicate that the client must be registered before the server will allow it to be parsed in detail.
