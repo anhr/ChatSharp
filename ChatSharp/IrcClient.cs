@@ -163,12 +163,18 @@ namespace ChatSharp
         /// The number of milliseconds to wait of connects the client to the specified IRC server
         /// </summary>
         public int timeoutConnectIRCServer { private get; set; } = 10000;
-
+        /// <summary>
+        /// Is IRC client connected to IRC server?
+        /// </summary>
+        /// <returns>true - IRC client is connected to IRC server</returns>
+        public bool isConnected () { return this.PingTimer != null; }
         /// <summary>
         /// Connects to the IRC server.
         /// </summary>
         public async void ConnectAsync()
         {
+            if (this.isConnected())
+                throw new InvalidOperationException("Disconnect the IRC server before connecting.");
             PingTimer = new Timer(30000);
             PingTimer.Elapsed += (sender, e) =>
             {
@@ -271,6 +277,7 @@ namespace ChatSharp
                 OnError(new Events.ErrorEventArgs(e));
             }
             PingTimer.Dispose();
+            PingTimer = null;
             if (this.NetworkStream != null)
             {
                 lock (this.NetworkStream)
