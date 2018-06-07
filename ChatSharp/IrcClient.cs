@@ -233,6 +233,7 @@ namespace ChatSharp
                         NetworkStream = new SslStream(NetworkStream);
                     ((SslStream)NetworkStream).AuthenticateAsClient(ServerHostname);
                 }
+                this.IsWriting = false;
 
                 // Write login info
                 if (!string.IsNullOrEmpty(User.Password))
