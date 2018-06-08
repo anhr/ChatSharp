@@ -95,6 +95,7 @@ namespace ChatSharp.Handlers
             client.SetHandler("442", ErrorHandlers.HandleError);//ERR_NOTONCHANNEL "<channel> :You're not on that channel"
             client.SetHandler("451", ErrorHandlers.HandleError);//ERR_NOTREGISTERED ":You have not registered" - Returned by the server to indicate that the client must be registered before the server will allow it to be parsed in detail.
             client.SetHandler("455", ErrorHandlers.HandleError);//ERR_HOSTILENAME
+            client.SetHandler("459", ErrorHandlers.HandleError);//ERR_NOHIDING	Invalid gecos/real name. Please use another. Not allowed to become an invisible operator?
             client.SetHandler("461", ErrorHandlers.HandleError);//ERR_NEEDMOREPARAMS "<command> :Not enough parameters" - Returned by the server by numerous commands to indicate to the client that it didn't supply enough parameters.
             client.SetHandler("465", ErrorHandlers.HandleError);//ERR_YOUREBANNEDCREEP ":You are banned from this server"
             client.SetHandler("470", ErrorHandlers.HandleError);//ERR_LINKCHANNEL automatically redirected to another channel. or ERR_KICKEDFROMCHAN
