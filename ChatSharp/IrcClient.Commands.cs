@@ -6,15 +6,22 @@ namespace ChatSharp
     public partial class IrcClient
     {
         /// <summary>
+        /// Send a NICK message.
         /// Changes your nick.
         /// </summary>
-        public void Nick(string newNick)
+        /// <param name="newNick"></param>
+        /// <remarks>
+        /// 4.1.2 "Nick message" article of rfc1459
+        /// </remarks>
+        public void Nick(string newNick = null)
         {
-            SendRawMessage("NICK {0}", newNick);
-            User.Nick = newNick;
+            this.SendRawMessage("NICK {0}", string.IsNullOrEmpty(newNick) ? this.User.Nick : newNick);
+            if (!string.IsNullOrEmpty(newNick))
+                this.User.Nick = newNick;
         }
         /// <summary>
-        /// Send a USER message
+        /// Send a USER message.
+        /// Changes your realname and username.
         /// </summary>
         /// <param name="RealName"></param>
         /// <param name="UserName"></param>

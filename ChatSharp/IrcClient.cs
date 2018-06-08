@@ -238,7 +238,7 @@ namespace ChatSharp
                 // Write login info
                 if (!string.IsNullOrEmpty(User.Password))
                     SendRawMessage("PASS {0}", User.Password);
-                SendRawMessage("NICK {0}", User.Nick);
+                this.Nick();
                 if (!string.IsNullOrEmpty(User.User))
                     this.SendUser();
                 PingTimer.Start();
