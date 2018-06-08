@@ -48,13 +48,13 @@ namespace ChatSharp.Handlers
             client.SetHandler("301", UserHandlers.HandleWhoIsOther);//RPL_AWAY	RFC1459	<nick> :<message>	Used in reply to a command directed at a user who is marked as away
             client.SetHandler("307", UserHandlers.HandleWhoIsRegNick);//RPL_WHOISREGNICK example: :java.webchat.org 307 bonalink aro 179751 :is using a registered nickname.
             client.SetHandler("309", UserHandlers.HandleWhoIsNickTrace);//RPL_NICKTRACE example: :java.webchat.org 309 bonalink aro en :Preferred language: English
-            client.SetHandler("311", UserHandlers.HandleWhoIsUser);
-            client.SetHandler("312", UserHandlers.HandleWhoIsServer);
-            client.SetHandler("313", UserHandlers.HandleWhoIsOperator);
-            client.SetHandler("317", UserHandlers.HandleWhoIsIdle);
-            client.SetHandler("318", UserHandlers.HandleWhoIsEnd);
-            client.SetHandler("319", UserHandlers.HandleWhoIsChannels);
-            client.SetHandler("330", UserHandlers.HandleWhoIsLoggedInAs);
+            client.SetHandler("311", UserHandlers.HandleWhoIsUser);//RPL_WHOISUSER	RFC1459	<nick> <user> <host> * :<real_name>	Reply to WHOIS - Information about the user
+            client.SetHandler("312", UserHandlers.HandleWhoIsServer);//RPL_WHOISSERVER	RFC1459	<nick> <server> :<server_info>	Reply to WHOIS - What server they're on
+            client.SetHandler("313", UserHandlers.HandleWhoIsOperator);//RPL_WHOISOPERATOR	RFC1459	<nick> :<privileges>	Reply to WHOIS - User has IRC Operator privileges
+            client.SetHandler("317", UserHandlers.HandleWhoIsIdle);//RPL_WHOISIDLE	RFC1459	<nick> <seconds> :seconds idle	Reply to WHOIS - Idle information
+            client.SetHandler("318", UserHandlers.HandleWhoIsEnd);//RPL_ENDOFWHOIS	RFC1459	<nick> :<info>	Reply to WHOIS - End of list
+            client.SetHandler("319", UserHandlers.HandleWhoIsChannels);//RPL_WHOISCHANNELS	RFC1459	<nick> :*( ( '@' / '+' ) <channel> ' ' )	Reply to WHOIS - Channel list for user (See RFC)
+            client.SetHandler("330", UserHandlers.HandleWhoIsLoggedInAs);//RPL_WHOWAS_TIME
             client.SetHandler("334", UserHandlers.HandleWhoIsLocation);//Users location
             client.SetHandler("338", UserHandlers.HandleWhoIsActually);//RPL_WHOISACTUALLY <source> 338 <target> <nick> <user>@<host> <ip> :Actual user@host, Actual IP
                                                                        //example: ":NuclearFallout.WA.US.GameSurge.net 338 blink2 blink2 ~blink2@95.188.70.66 95.188.70.66 :Actual user@host, Actual IP"
