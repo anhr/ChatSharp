@@ -240,8 +240,7 @@ namespace ChatSharp
                     SendRawMessage("PASS {0}", User.Password);
                 SendRawMessage("NICK {0}", User.Nick);
                 if (!string.IsNullOrEmpty(User.User))
-                    // hostname, servername are ignored by most IRC servers
-                    SendRawMessage("USER {0} hostname servername :{1}", User.User, User.RealName);
+                    this.SendUser();
                 PingTimer.Start();
                 string tail = "";
                 byte[] buffer = new byte[1024];

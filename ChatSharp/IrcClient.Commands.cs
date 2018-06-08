@@ -13,6 +13,24 @@ namespace ChatSharp
             SendRawMessage("NICK {0}", newNick);
             User.Nick = newNick;
         }
+        /// <summary>
+        /// Send a USER message
+        /// </summary>
+        /// <param name="RealName"></param>
+        /// <param name="UserName"></param>
+        /// <remarks>
+        /// 4.1.3 "User message" article of rfc1459
+        /// </remarks>
+        public void SendUser(string RealName = null, string UserName = null)
+        {
+            // hostname, servername are ignored by most IRC servers
+            this.SendRawMessage("USER {0} hostname servername :{1}", string.IsNullOrEmpty(UserName) ? this.User.User : UserName,
+                string.IsNullOrEmpty(RealName) ? this.User.RealName : RealName);
+            if (!string.IsNullOrEmpty(UserName))
+                this.User.User = UserName;
+            if (!string.IsNullOrEmpty(RealName))
+                this.User.RealName = RealName;
+        }
 
         /// <summary>
         /// Sends a message to one or more destinations (channels or users).
