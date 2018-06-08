@@ -279,5 +279,23 @@ namespace ChatSharp
             }));
             SendRawMessage("NAMES {0}", channels);
         }
+
+        /// <summary>
+        /// Send a QUIT message with a reason, then disconnect.
+        /// </summary>
+        /// <param name="reason"></param>
+        public void Quit(string reason)
+        {
+            if (NetworkStream == null)
+            {
+                //The QUIT command was called not once
+                OnNetworkError(new Events.SocketErrorEventArgs(System.Net.Sockets.SocketError.NotConnected));
+                return;
+            }
+            if (reason == null)
+                SendRawMessage("QUIT");
+            else
+                SendRawMessage("QUIT :{0}", reason);
+        }
     }
 }

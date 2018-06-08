@@ -307,23 +307,6 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Send a QUIT message with a reason and disconnect.
-        /// </summary>
-        public void Quit(string reason)
-        {
-            if (NetworkStream == null)
-            {
-                //The QUIT command was called not once
-                OnNetworkError(new SocketErrorEventArgs(SocketError.NotConnected));
-                return;
-            }
-            if (reason == null)
-                SendRawMessage("QUIT");
-            else
-                SendRawMessage("QUIT :{0}", reason);
-        }
-
-        /// <summary>
         /// Socket disconnect
         /// </summary>
         public void Disconnect(IrcMessage message = null)
