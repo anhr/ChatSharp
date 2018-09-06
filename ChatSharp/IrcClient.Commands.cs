@@ -101,7 +101,7 @@ namespace ChatSharp
         public void JoinChannel(string channel)
         {
             if (Channels.Contains(channel, this.User.Nick))
-                throw new InvalidOperationException("Client is already present in channel.");
+                throw new InvalidOperationException("Client " + this.User.Nick + " is already present in " + channel + " channel.");
             SendRawMessage("JOIN {0}", channel);
         }
 
