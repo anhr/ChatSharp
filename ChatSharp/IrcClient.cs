@@ -395,6 +395,11 @@ namespace ChatSharp
                     OnNetworkError(new SocketErrorEventArgs(SocketError.NoData));
                 return;
             }
+            catch (System.ObjectDisposedException)
+            {
+                OnNetworkError(new SocketErrorEventArgs(SocketError.NotConnected));
+                return;
+            }
             finally
             {
                 IsWriting = false;
