@@ -13,6 +13,7 @@ namespace ChatSharp
         {
             Channels = new ChannelCollection();
             ChannelModes = new ChannelsModes();
+            this.ctcp = new CTCP();
         }
 
         /// <summary>
@@ -259,5 +260,63 @@ namespace ChatSharp
         {
             return Hostmask;
         }
+        /// <summary>
+        /// Client-to-client protocol
+        /// </summary>
+        /// <remarks>
+        /// See https://en.wikipedia.org/wiki/Client-to-client_protocol for details
+        /// </remarks>
+        public class CTCP
+        {
+            /// <summary>
+            /// First and last character of CTCP command and reply
+            /// </summary>
+            private const string FirstAndLastCharacter = "\u0001";
+            /// <summary>
+            /// Sends a private message with CTCP command to target user
+            /// </summary>
+            /// <param name="ircClient"></param>
+            /// <param name="nick">Nick of the target user</param>
+            /// <param name="command">CTCP command</param>
+            /// <remarks>
+            /// See https://en.wikipedia.org/wiki/Client-to-client_protocol for details
+            /// </remarks>
+            public void Command(ChatSharp.IrcClient ircClient, string nick, string command)
+            { ircClient.SendMessage(CTCP.FirstAndLastCharacter + command + CTCP.FirstAndLastCharacter, nick); }
+            /// <summary>
+            /// CTCP replies
+            /// </summary>
+            /// <remarks>
+            ///   key: CTCP command of the reply
+            /// value: CTCP reply
+            /// </remarks>
+            private Dictionary<string, string> Replies = new Dictionary<string, string>();
+            /// <summary>
+            /// Occurs when a notice recieved.
+            /// </summary>
+            /// <param name="ircClient">"</param>
+            /// <param name="Notice">"</param>
+            /// <param name="source">The source of the notice. Example: "ChanServ!ChanServ@services."</param>
+            public void NoticeRecieved(ChatSharp.IrcClient ircClient, string Notice, string source)
+            {
+                string[] array = 
+                    new System.Text.RegularExpressions.Regex(@CTCP.FirstAndLastCharacter + "(\\S*) (.*)" + CTCP.FirstAndLastCharacter).Split(Notice);//Example: "\u0001VERSION Web IRC client - Bonalink  https://localhost/Chat/?tab=IRC  Browser - Chrome 70. UTC - Windows 10 desktop\u0001"
+                if (array.Length < 2)
+                    return;
+                string command = array[1],//CTCP command. Example: VERSION
+                    reply = array[2];//CTCP reply. Example: "KVIrc 4.2.0 svn-6190 'Equilibrium' 20120701 - build 2012-07-04 14:48:08 UTC - Windows 8  (x64)  (Build 9200)"
+                if (this.Replies.ContainsKey(command))
+                    this.Replies[command] = reply;
+                else this.Replies.Add(command, reply);
+                ircClient.OnNoticeRecievedCTCP(new Events.IrcNoticeEventCTCPArgs(command, reply, source));
+            }
+        }
+        /// <summary>
+        /// Client-to-client protocol
+        /// </summary>
+        /// <remarks>
+        /// See https://en.wikipedia.org/wiki/Client-to-client_protocol for details
+        /// </remarks>
+        public CTCP ctcp;
     }
 }

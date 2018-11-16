@@ -482,10 +482,31 @@ namespace ChatSharp
         /// <summary>
         /// Occurs when a notice recieved.
         /// </summary>
+        /// <remarks>
+        /// See https://en.wikipedia.org/wiki/Client-to-client_protocol for details
+        /// </remarks>
         public event EventHandler<IrcNoticeEventArgs> NoticeRecieved;
         internal void OnNoticeRecieved(IrcNoticeEventArgs e)
         {
             if (NoticeRecieved != null) NoticeRecieved(this, e);
+
+            //CTCP
+            //See https://en.wikipedia.org/wiki/Client-to-client_protocol for details
+            string[] arraySource = new System.Text.RegularExpressions.Regex(@"(.*)!.*").Split(e.Source);//e.Source example: "anhr!kvirc@95.188.70.66"
+            if (arraySource.Length == 3)
+            {//The source's nick was detected
+                string nick = arraySource[1];
+                if (this.Users.Contains(nick))
+                    this.Users[nick].ctcp.NoticeRecieved(this, e.Notice, e.Source);
+            }
+        }
+        /// <summary>
+        /// Occurs when a CTCP notice recieved.
+        /// </summary>
+        public event EventHandler<IrcNoticeEventCTCPArgs> NoticeRecievedCTCP;
+        internal void OnNoticeRecievedCTCP(IrcNoticeEventCTCPArgs e)
+        {
+            if (NoticeRecievedCTCP != null) NoticeRecievedCTCP(this, e);
         }
         /// <summary>
         /// Occurs when a help recieved.
