@@ -265,8 +265,10 @@ namespace ChatSharp
         /// </summary>
         /// <remarks>
         /// See https://en.wikipedia.org/wiki/Client-to-client_protocol for details
+        ///   key: CTCP command of the reply
+        /// value: CTCP reply
         /// </remarks>
-        public class CTCP
+        public class CTCP : Dictionary<string, string>
         {
             /// <summary>
             /// First and last character of CTCP command and reply
@@ -284,14 +286,6 @@ namespace ChatSharp
             public void Command(ChatSharp.IrcClient ircClient, string nick, string command)
             { ircClient.SendMessage(CTCP.FirstAndLastCharacter + command + CTCP.FirstAndLastCharacter, nick); }
             /// <summary>
-            /// CTCP replies
-            /// </summary>
-            /// <remarks>
-            ///   key: CTCP command of the reply
-            /// value: CTCP reply
-            /// </remarks>
-            private Dictionary<string, string> Replies = new Dictionary<string, string>();
-            /// <summary>
             /// Occurs when a notice recieved.
             /// </summary>
             /// <param name="ircClient">"</param>
@@ -305,9 +299,9 @@ namespace ChatSharp
                     return;
                 string command = array[1],//CTCP command. Example: VERSION
                     reply = array[2];//CTCP reply. Example: "KVIrc 4.2.0 svn-6190 'Equilibrium' 20120701 - build 2012-07-04 14:48:08 UTC - Windows 8  (x64)  (Build 9200)"
-                if (this.Replies.ContainsKey(command))
-                    this.Replies[command] = reply;
-                else this.Replies.Add(command, reply);
+                if (this.ContainsKey(command))
+                    this[command] = reply;
+                else this.Add(command, reply);
                 ircClient.OnNoticeRecievedCTCP(new Events.IrcNoticeEventCTCPArgs(command, reply, source));
             }
         }
