@@ -482,13 +482,13 @@ namespace ChatSharp
         /// <summary>
         /// Occurs when a notice recieved.
         /// </summary>
-        /// <remarks>
-        /// See https://en.wikipedia.org/wiki/Client-to-client_protocol for details
-        /// </remarks>
         public event EventHandler<IrcNoticeEventArgs> NoticeRecieved;
         internal void OnNoticeRecieved(IrcNoticeEventArgs e)
         {
             if (NoticeRecieved != null) NoticeRecieved(this, e);
+
+            if (e.Source == null)
+                return;
 
             //CTCP
             //See https://en.wikipedia.org/wiki/Client-to-client_protocol for details
@@ -503,6 +503,9 @@ namespace ChatSharp
         /// <summary>
         /// Occurs when a CTCP notice recieved.
         /// </summary>
+        /// <remarks>
+        /// See https://en.wikipedia.org/wiki/Client-to-client_protocol for details
+        /// </remarks>
         public event EventHandler<IrcNoticeEventCTCPArgs> NoticeRecievedCTCP;
         internal void OnNoticeRecievedCTCP(IrcNoticeEventCTCPArgs e)
         {
